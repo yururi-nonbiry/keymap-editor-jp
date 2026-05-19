@@ -33,6 +33,11 @@ function KeyboardPicker(props) {
   }, [backendConnected, checkingBackend])
 
   useEffect(() => {
+    if (!config.apiBaseUrl || config.apiBaseUrl === 'undefined') {
+      setBackendConnected(false)
+      setCheckingBackend(false)
+      return
+    }
     healthcheck()
       .then(res => {
         if (res.status === 200) {
