@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import * as keyPropTypes from './keyPropTypes'
@@ -15,7 +15,7 @@ function KeyValue(props) {
   const text = source && (source?.symbol || source?.code)
   const icon = source?.faIcon && <Icon name={source.faIcon} />
 
-  const handleClick = useMemo(() => function (event) {
+  const handleClick = useCallback((event) => {
     event.stopPropagation()
     onSelect({
       target: event.target,

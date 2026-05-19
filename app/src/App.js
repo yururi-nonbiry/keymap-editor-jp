@@ -1,6 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import keyBy from 'lodash/keyBy'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import * as config from './config'
 import './App.css';
@@ -27,7 +27,7 @@ function App() {
   const [saving, setSaving] = useState(false)
   const [keyboardLayout, setKeyboardLayout] = useState(localStorage.getItem('keyboardLayout') || 'US')
 
-  const handleLayoutChange = useMemo(() => function(newLayout) {
+  const handleLayoutChange = useCallback((newLayout) => {
     setKeyboardLayout(newLayout)
     localStorage.setItem('keyboardLayout', newLayout)
   }, [setKeyboardLayout])
@@ -50,7 +50,7 @@ function App() {
     })
   }
 
-  const handleCommitChanges = useMemo(() => function() {
+  const handleCommitChanges = useCallback(() => {
     const { repository, branch } = sourceOther.github
 
     ;(async function () {
@@ -70,7 +70,7 @@ function App() {
     setEditingKeymap
   ])
 
-  const handleDownloadKeymapJSON = useMemo(() => function() {
+  const handleDownloadKeymapJSON = useCallback(() => {
     const currentKeymap = editingKeymap || keymap
     if (!currentKeymap) return
 
@@ -84,7 +84,7 @@ function App() {
     URL.revokeObjectURL(url)
   }, [layout, keymap, editingKeymap])
 
-  const handleDownloadKeymapDTS = useMemo(() => function() {
+  const handleDownloadKeymapDTS = useCallback(() => {
     const currentKeymap = editingKeymap || keymap
     if (!currentKeymap) return
 
@@ -98,7 +98,7 @@ function App() {
     URL.revokeObjectURL(url)
   }, [layout, keymap, editingKeymap])
 
-  const handleKeyboardSelected = useMemo(() => function(event) {
+  const handleKeyboardSelected = useCallback((event) => {
     if (typeof event === 'string') {
       setSource(event)
       setLayout(null)
@@ -121,21 +121,19 @@ function App() {
     setEditingKeymap
   ])
 
-  const initialize = useMemo(() => {
-    return async function () {
-      const [keycodes, behaviours] = await Promise.all([
-        loadKeycodes(),
-        loadBehaviours()
-      ])
+  const initialize = useCallback(async () => {
+    const [keycodes, behaviours] = await Promise.all([
+      loadKeycodes(),
+      loadBehaviours()
+    ])
 
-      keycodes.indexed = keyBy(keycodes, 'code')
-      behaviours.indexed = keyBy(behaviours, 'code')
+    keycodes.indexed = keyBy(keycodes, 'code')
+    behaviours.indexed = keyBy(behaviours, 'code')
 
-      setDefinitions({ keycodes, behaviours })
-    }
+    setDefinitions({ keycodes, behaviours })
   }, [setDefinitions])
 
-  const handleUpdateKeymap = useMemo(() => function(keymap) {
+  const handleUpdateKeymap = useCallback((keymap) => {
     setEditingKeymap(keymap)
   }, [setEditingKeymap])
 

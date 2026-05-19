@@ -1,5 +1,5 @@
 import compact from 'lodash/compact'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import * as config from '../config'
@@ -60,7 +60,7 @@ function KeyboardPicker(props) {
     setSource(defaultSource)
   }, [checkingBackend, sourceChoices])
 
-  const handleKeyboardSelected = useMemo(() => function (event) {
+  const handleKeyboardSelected = useCallback((event) => {
     const { layout, keymap, ...rest } = event
 
     const layerNames = keymap.layer_names || keymap.layers.map((_, i) => `Layer ${i}`)
@@ -71,7 +71,7 @@ function KeyboardPicker(props) {
     onSelect({ source, layout, keymap, ...rest })
   }, [onSelect, source])
 
-  const fetchLocalKeyboard = useMemo(() => async function() {
+  const fetchLocalKeyboard = useCallback(async () => {
     try {
       const [layout, keymap] = await Promise.all([
         loadLayout(),

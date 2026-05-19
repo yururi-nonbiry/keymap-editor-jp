@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Icon from '../Common/Icon'
 import styles from './styles.module.css'
@@ -26,7 +26,7 @@ function LayerSelector(props) {
   const [renaming, setRenaming] = useState(false)
   const [editing, setEditing] = useState('')
 
-  const handleSelect = useMemo(() => function(layer) {
+  const handleSelect = useCallback((layer) => {
     if (layer === activeLayer) {
       setEditing(layers[activeLayer])
       setRenaming(true)
@@ -37,11 +37,11 @@ function LayerSelector(props) {
     onSelect(layer)
   }, [layers, activeLayer, setEditing, setRenaming, onSelect])
 
-  const handleAdd = useMemo(() => function() {
+  const handleAdd = useCallback(() => {
     onNewLayer()
   }, [onNewLayer])
 
-  const handleDelete = useMemo(() => function(layerIndex, layerName) {
+  const handleDelete = useCallback((layerIndex, layerName) => {
     const confirmation = `Really delete layer: ${layerName}?`
     window.confirm(confirmation) && onDeleteLayer(layerIndex)
   }, [onDeleteLayer])
@@ -65,7 +65,7 @@ function LayerSelector(props) {
     setRenaming(false)
   }, [renaming, setEditing, setRenaming])
 
-  const handleClickOutside = useMemo(() => function(event) {
+  const handleClickOutside = useCallback((event) => {
     const clickedOutside = ref.current && !ref.current.contains(event.target)
     if (!clickedOutside) {
       return

@@ -54,23 +54,23 @@ function ValuePicker (props) {
     )
   }, [showAll, choices, searchThreshold, showAllThreshold])
 
-  const handleClickResult = useMemo(() => function(result) {
+  const handleClickResult = useCallback((result) => {
     onSelect(result)
   }, [onSelect])
 
-  const handleClickOutside = useMemo(() => function(event) {
+  const handleClickOutside = useCallback((event) => {
     if (!listRef.current.contains(event.target)) {
       onCancel()
     }
   }, [listRef, onCancel])
 
-  const handleSelectActive = useMemo(() => function() {
+  const handleSelectActive = useCallback(() => {
     if (results.length > 0 && highlighted !== null) {
       handleClickResult(results[highlighted])
     }
   }, [results, highlighted, handleClickResult])
 
-  const setHighlightPosition = useMemo(() => function(initial, offset) {
+  const setHighlightPosition = useCallback((initial, offset) => {
     if (results.length === 0) {
       setHighlighted(null)
       return
@@ -91,19 +91,19 @@ function ValuePicker (props) {
     setHighlighted(next)
   }, [results, highlighted, setHighlighted])
 
-  const handleHighlightNext = useMemo(() => function() {
+  const handleHighlightNext = useCallback(() => {
     setHighlightPosition(0, 1)
   }, [setHighlightPosition])
 
-  const handleHightightPrev = useMemo(() => function() {
+  const handleHightightPrev = useCallback(() => {
     setHighlightPosition(results.length - 1, -1)
   }, [setHighlightPosition, results])
 
-  const handleKeyPress = useMemo(() => function(event) {
+  const handleKeyPress = useCallback((event) => {
     setQuery(event.target.value)
   }, [setQuery])
 
-  const handleKeyDown = useMemo(() => function (event) {
+  const handleKeyDown = useCallback((event) => {
     const mapping = {
       ArrowDown: handleHighlightNext,
       ArrowUp: handleHightightPrev,
@@ -175,7 +175,7 @@ function ValuePicker (props) {
         <div className={style['choices-counter']}>
           Total choices: {choices.length}.
           {enableShowAllButton && (
-            <button onClick={setShowAll(true)}>Show all</button>
+            <button onClick={() => setShowAll(true)}>Show all</button>
           )}
         </div>
       )}

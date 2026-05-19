@@ -1,6 +1,6 @@
 import find from 'lodash/find'
 import map from 'lodash/map'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import github from './api'
@@ -50,7 +50,7 @@ function GithubPicker(props) {
 
   const { onSelect } = props
 
-  const clearSelection = useMemo(() => function () {
+  const clearSelection = useCallback(() => {
     setState(state => ({
       ...state,
       selectedBranchName: null,
@@ -59,7 +59,7 @@ function GithubPicker(props) {
     }))
   }, [setState])
 
-  const lintKeyboard = useMemo(() => function ({ layout }) {
+  const lintKeyboard = useCallback(({ layout }) => {
     const noKeyHasPosition = layout.every(key => (
       key.row === undefined &&
       key.col === undefined
@@ -72,7 +72,7 @@ function GithubPicker(props) {
     }
   }, [setState])
 
-  const loadKeyboard = useMemo(() => async function () {
+  const loadKeyboard = useCallback(async () => {
     const available = github.repositories
     const repository = find(available, { id: selectedRepoId })?.full_name
     const branch = selectedBranchName

@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty'
 import keyBy from 'lodash/keyBy'
 import times from 'lodash/times'
 import PropTypes from 'prop-types'
-import { useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 
 import KeyboardLayout from './KeyboardLayout'
 import LayerSelector from './LayerSelector'
@@ -32,7 +32,7 @@ function Keyboard(props) {
   }), [keycodes, behaviours, availableLayers])
 
   // TODO: this may be unnecessary
-  const isReady = useMemo(() => function() {
+  const isReady = useMemo(() => {
     return (
       Object.keys(keycodes.indexed).length > 0 &&
       Object.keys(behaviours.indexed).length > 0 &&
@@ -49,7 +49,7 @@ function Keyboard(props) {
     }
   }, [behaviours, keycodes, availableLayers])
 
-  const getSearchTargets = useMemo(() => function (param, behaviour) {
+  const getSearchTargets = useCallback((param, behaviour) => {
     // Special case for behaviour commands which can dynamically add another
     // parameter that isn't defined at the root level of the behaviour.
     // Currently this is just `&bt BT_SEL` and is only represented as an enum.
@@ -68,7 +68,7 @@ function Keyboard(props) {
     return searchTargets[param]
   }, [searchTargets, sources])
 
-  const boundingBox = useMemo(() => function () {
+  const boundingBox = useMemo(() => {
     return layout.map(key => getKeyBoundingBox(
       { x: key.x, y: key.y },
       { u: key.u || key.w || 1, h: key.h || 1 },
@@ -79,17 +79,16 @@ function Keyboard(props) {
     }), { x: 0, y: 0 })
   }, [layout])
 
-  const getWrapperStyle = useMemo(() => function () {
-    const bbox = boundingBox()
+  const wrapperStyle = useMemo(() => {
     return {
-      width: `${bbox.x}px`,
-      height: `${bbox.y}px`,
+      width: `${boundingBox.x}px`,
+      height: `${boundingBox.y}px`,
       margin: '0 auto',
       padding: '40px'
     }
   }, [boundingBox])
 
-  const handleCreateLayer = useMemo(() => function () {
+  const handleCreateLayer = useCallback(() => {
     const layer = keymap.layers.length
     const binding = '&trans'
     const makeKeycode = () => ({ value: binding, params: [] })
@@ -101,7 +100,7 @@ function Keyboard(props) {
     onUpdate({ ...keymap, layer_names: updatedLayerNames, layers })
   }, [keymap, layout, onUpdate])
 
-  const handleUpdateLayer = useMemo(() => function(layerIndex, updatedLayer) {
+  const handleUpdateLayer = useCallback((layerIndex, updatedLayer) => {
     const original = keymap.layers
     const layers = [
       ...original.slice(0, layerIndex),
@@ -112,7 +111,7 @@ function Keyboard(props) {
     onUpdate({ ...keymap, layers })
   }, [keymap, onUpdate])
 
-  const handleRenameLayer = useMemo(() => function (layerName) {
+  const handleRenameLayer = useCallback((layerName) => {
     const layer_names = [
       ...keymap.layer_names.slice(0, activeLayer),
       layerName,
@@ -122,7 +121,7 @@ function Keyboard(props) {
     onUpdate({ ...keymap, layer_names })
   }, [keymap, activeLayer, onUpdate])
 
-  const handleDeleteLayer = useMemo(() => function (layerIndex) {
+  const handleDeleteLayer = useCallback((layerIndex) => {
     const layer_names = [...keymap.layer_names]
     layer_names.splice(layerIndex, 1)
 
@@ -147,8 +146,8 @@ function Keyboard(props) {
         onDeleteLayer={handleDeleteLayer}
       />
       <SearchContext.Provider value={{ getSearchTargets, sources }}>
-        <div style={getWrapperStyle()}>
-          {isReady() && (
+        <div style={wrapperStyle}>
+          {isReady && (
             <KeyboardLayout
               data-layer={activeLayer}
               layout={layout}
