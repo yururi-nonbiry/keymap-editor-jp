@@ -3,84 +3,52 @@ import keyBy from 'lodash/keyBy'
 const jpKeycodeTranslations = {
   // Number row
   NUMBER_2: { description: "2 and \" [Double Quote]" },
-  N2: { description: "2 and \" [Double Quote]" },
   NUMBER_6: { description: "6 and & [Ampersand]" },
-  N6: { description: "6 and & [Ampersand]" },
   NUMBER_7: { description: "7 and ' [Single Quote]" },
-  N7: { description: "7 and ' [Single Quote]" },
   NUMBER_8: { description: "8 and ( [Left Parenthesis]" },
-  N8: { description: "8 and ( [Left Parenthesis]" },
   NUMBER_9: { description: "9 and ) [Right Parenthesis]" },
-  N9: { description: "9 and ) [Right Parenthesis]" },
   NUMBER_0: { description: "0" },
-  N0: { description: "0" },
 
   // Symbols
   MINUS: { symbol: "-", description: "- and = [Equal]" },
   EQUAL: { symbol: "^", description: "^ [Caret] and ~ [Tilde]" },
   LEFT_BRACKET: { symbol: "@", description: "@ [At Sign] and ` [Grave]" },
-  LBKT: { symbol: "@", description: "@ [At Sign] and ` [Grave]" },
   RIGHT_BRACKET: { symbol: "[", description: "[ [Left Bracket] and { [Left Brace]" },
-  RBKT: { symbol: "[", description: "[ [Left Bracket] and { [Left Brace]" },
   BACKSLASH: { symbol: "]", description: "] [Right Bracket] and } [Right Brace]" },
-  BSLH: { symbol: "]", description: "] [Right Bracket] and } [Right Brace]" },
   SEMICOLON: { symbol: ";", description: "; [Semicolon] and + [Plus]" },
-  SEMI: { symbol: ";", description: "; [Semicolon] and + [Plus]" },
   SINGLE_QUOTE: { symbol: ":", description: ": [Colon] and * [Asterisk]" },
-  SQT: { symbol: ":", description: ": [Colon] and * [Asterisk]" },
-  APOSTROPHE: { symbol: ":", description: ": [Colon] and * [Asterisk]" },
-  APOS: { symbol: ":", description: ": [Colon] and * [Asterisk]" },
   GRAVE: { symbol: "半角/全角", description: "半角/全角 (Hankaku/Zenkaku)" },
 
   // International keys
   INTERNATIONAL_1: { symbol: "\\", description: "\\ [Backslash] and _ [Underscore] (ろ)" },
-  INT1: { symbol: "\\", description: "\\ [Backslash] and _ [Underscore] (ろ)" },
-  INT_RO: { symbol: "\\", description: "\\ [Backslash] and _ [Underscore] (ろ)" },
   INTERNATIONAL_3: { symbol: "¥", description: "¥ [Yen] and | [Pipe]" },
-  INT3: { symbol: "¥", description: "¥ [Yen] and | [Pipe]" },
-  INT_YEN: { symbol: "¥", description: "¥ [Yen] and | [Pipe]" },
   INTERNATIONAL_4: { symbol: "変換", description: "変換 (Henkan)" },
-  INT4: { symbol: "変換", description: "変換 (Henkan)" },
-  INT_HENKAN: { symbol: "変換", description: "変換 (Henkan)" },
   INTERNATIONAL_5: { symbol: "無変換", description: "無変換 (Muhenkan)" },
-  INT5: { symbol: "無変換", description: "無変換 (Muhenkan)" },
-  INT_MUHENKAN: { symbol: "無変換", description: "無変換 (Muhenkan)" },
   INTERNATIONAL_2: { symbol: "かな", description: "ひらがな/カタカナ (Kana)" },
-  INT2: { symbol: "かな", description: "ひらがな/カタカナ (Kana)" },
-  INT_KANA: { symbol: "かな", description: "ひらがな/カタカナ (Kana)" },
 
   // Shifted symbol keycodes mapping
   AT: { symbol: "\"", description: "@ [At Sign] (Produces \" on JP OS)" },
-  AT_SIGN: { symbol: "\"", description: "@ [At Sign] (Produces \" on JP OS)" },
   DOUBLE_QUOTE: { symbol: "*", description: "\" [Double Quote] (Produces * on JP OS)" },
-  DQT: { symbol: "*", description: "\" [Double Quote] (Produces * on JP OS)" },
   ASTERISK: { symbol: "(", description: "* [Asterisk] (Produces ( on JP OS)" },
-  ASTRK: { symbol: "(", description: "* [Asterisk] (Produces ( on JP OS)" },
-  STAR: { symbol: "(", description: "* [Asterisk] (Produces ( on JP OS)" },
   LEFT_PARENTHESIS: { symbol: ")", description: "( [Left Parenthesis] (Produces ) on JP OS)" },
-  LPAR: { symbol: ")", description: "( [Left Parenthesis] (Produces ) on JP OS)" },
   RIGHT_PARENTHESIS: { symbol: "", description: ") [Right Parenthesis] (Not used / produces nothing on JP OS)" },
-  RPAR: { symbol: "", description: ") [Right Parenthesis] (Not used / produces nothing on JP OS)" },
   CARET: { symbol: "&", description: "^ [Caret] (Produces & on JP OS)" },
   AMPERSAND: { symbol: "'", description: "& [Ampersand] (Produces ' on JP OS)" },
-  AMPS: { symbol: "'", description: "& [Ampersand] (Produces ' on JP OS)" },
   COLON: { symbol: "+", description: ": [Colon] (Produces + on JP OS)" },
   PLUS: { symbol: "~", description: "+ [Plus] (Produces ~ on JP OS)" },
   TILDE: { symbol: "`", description: "~ [Tilde] (Produces ` on JP OS)" },
   UNDERSCORE: { symbol: "=", description: "_ [Underscore] (Produces = on JP OS)" },
-  UNDER: { symbol: "=", description: "_ [Underscore] (Produces = on JP OS)" },
   PIPE: { symbol: "}", description: "| [Pipe] (Produces } on JP OS)" },
   LEFT_BRACE: { symbol: "`", description: "{ [Left Brace] (Produces ` on JP OS)" },
-  LBRC: { symbol: "`", description: "{ [Left Brace] (Produces ` on JP OS)" },
   RIGHT_BRACE: { symbol: "{", description: "} [Right Brace] (Produces { on JP OS)" },
-  RBRC: { symbol: "{", description: "} [Right Brace] (Produces { on JP OS)" },
 }
 
 export function getJpDefinitions(definitions) {
   if (!definitions || !definitions.keycodes) return definitions
 
   const keycodes = definitions.keycodes.map(kc => {
-    const jpMapping = jpKeycodeTranslations[kc.code]
+    const translationKey = [kc.code, ...(kc.aliases || [])].find(alias => jpKeycodeTranslations[alias])
+    const jpMapping = jpKeycodeTranslations[translationKey]
     if (jpMapping) {
       return {
         ...kc,
