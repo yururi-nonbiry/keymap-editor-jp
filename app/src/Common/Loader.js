@@ -34,6 +34,7 @@ function Loader(props) {
       clearTimeout(timeout)
       setState({ ...state, timeout: null, loaded: true })
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [load])
 
   if (state.loaded) {

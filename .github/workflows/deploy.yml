@@ -35,6 +35,7 @@ jobs:
           # REACT_APP_GITHUB_APP_NAME: 'your-github-app-name'
           REACT_APP_ENABLE_LOCAL: 'false'
           REACT_APP_ENABLE_GITHUB: 'true'
+          CI: 'false'
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
