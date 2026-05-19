@@ -7,6 +7,7 @@ import './App.css';
 import { DefinitionsContext } from './providers'
 import { loadKeycodes } from './keycodes'
 import { loadBehaviours } from './api'
+import { generateKeymap } from './keymapGenerator'
 import KeyboardPicker from './Pickers/KeyboardPicker';
 import Spinner from './Common/Spinner';
 import Keyboard from './Keyboard/Keyboard'
@@ -53,7 +54,42 @@ function App() {
     setEditingKeymap
   ])
 
+  const handleDownloadKeymapJSON = useMemo(() => function() {
+    const currentKeymap = editingKeymap || keymap
+    if (!currentKeymap) return
+
+    const generated = generateKeymap(layout, currentKeymap)
+    const blob = new Blob([generated.json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'keymap.json'
+    link.click()
+    URL.revokeObjectURL(url)
+  }, [layout, keymap, editingKeymap])
+
+  const handleDownloadKeymapDTS = useMemo(() => function() {
+    const currentKeymap = editingKeymap || keymap
+    if (!currentKeymap) return
+
+    const generated = generateKeymap(layout, currentKeymap)
+    const blob = new Blob([generated.code], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'keymap.keymap'
+    link.click()
+    URL.revokeObjectURL(url)
+  }, [layout, keymap, editingKeymap])
+
   const handleKeyboardSelected = useMemo(() => function(event) {
+    if (typeof event === 'string') {
+      setSource(event)
+      setLayout(null)
+      setKeymap(null)
+      setEditingKeymap(null)
+      return
+    }
     const { source, layout, keymap, ...other } = event
 
     setSource(source)
@@ -106,6 +142,16 @@ function App() {
               {saving ? 'Saving' : 'Commit Changes'}
               {saving && <Spinner />}
             </button>
+          )}
+          {source === 'upload' && (
+            <>
+              <button disabled={!(editingKeymap || keymap)} onClick={handleDownloadKeymapJSON}>
+                Download keymap.json
+              </button>
+              <button disabled={!(editingKeymap || keymap)} onClick={handleDownloadKeymapDTS}>
+                Download .keymap
+              </button>
+            </>
           )}
         </div>
         <DefinitionsContext.Provider value={definitions}>
