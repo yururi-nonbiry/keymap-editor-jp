@@ -16,8 +16,7 @@ import github from './Pickers/Github/api'
 import Selector from './Common/Selector'
 import { getJpDefinitions } from './jpLayout'
 import SavedSessions from './SavedSessions'
-
-const { generateKeymap } = require('./keymapGenerator')
+import { generateKeymap } from './keymapGenerator'
 
 function App() {
   const [definitions, setDefinitions] = useState(null)

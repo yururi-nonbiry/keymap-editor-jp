@@ -37,7 +37,8 @@ function encodeBindValue(parsed) {
 }
 
 function encodeKeyBinding(parsed) {
-  const { value, params } = parsed
+  const value = parsed.value
+  const params = parsed.params
   return `${value} ${params.map(encodeBindValue).join(' ')}`.trim()
 }
 
@@ -52,31 +53,30 @@ function getBehavioursUsed(keymap) {
   return uniq(map(keybinds, 'value'))
 }
 
-function renderTable(layout, layer, opts = {}) {
-  const {
-    useQuotes = false,
-    linePrefix = '',
-    columnSeparator = ','
-  } = opts
+function renderTable(layout, layer, opts) {
+  const options = opts || {}
+  const useQuotes = options.useQuotes !== undefined ? options.useQuotes : false
+  const linePrefix = options.linePrefix !== undefined ? options.linePrefix : ''
+  const columnSeparator = options.columnSeparator !== undefined ? options.columnSeparator : ','
   const minWidth = useQuotes ? 9 : 7
   const table = layer.reduce((map, code, i) => {
     if (layout[i]) {
-      const { row = 0, col } = layout[i]
+      const row = layout[i].row !== undefined ? layout[i].row : 0
+      const col = layout[i].col
       map[row] = map[row] || []
-      map[row][col || map[row].length] = code
+      map[row][col !== undefined ? col : map[row].length] = code
     }
     return map
   }, [])
 
-  const columns = Math.max(...table.map(row => row ? row.length : 0), 0)
+  const columns = table.reduce((max, row) => Math.max(max, row ? row.length : 0), 0)
   const columnIndices = columns > 0 ? '.'.repeat(columns - 1).split('.').map((_, i) => i) : []
-  const columnWidths = columnIndices.map(i => Math.max(
-    ...table.map(row => (
-      ((row && row[i]) || []).length
-      + columnSeparator.length
-      + (useQuotes ? 2 : 0)
-    ))
-  ))
+  const columnWidths = columnIndices.map(i => table.reduce((max, row) => Math.max(
+    max,
+    ((row && row[i]) || []).length
+    + columnSeparator.length
+    + (useQuotes ? 2 : 0)
+  ), 0))
 
   return table.map((row, rowIndex) => {
     if (!row) return ''
@@ -120,10 +120,11 @@ ${rendered}
     .replace(layersPattern, renderedLayers.join(''))
 }
 
-function generateKeymapCode(layout, keymap, encoded, template, behavioursByBind = {}) {
-  const { layer_names: names = [] } = keymap
+function generateKeymapCode(layout, keymap, encoded, template, behavioursByBind) {
+  const finalBehavioursByBind = behavioursByBind || {}
+  const names = keymap.layer_names || []
   const behaviourHeaders = flatten(getBehavioursUsed(keymap).map(
-    bind => get(behavioursByBind, [bind, 'includes'], [])
+    bind => get(finalBehavioursByBind, [bind, 'includes'], [])
   ))
 
   return renderTemplate(template, {

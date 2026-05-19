@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import ValidationErrors from './Github/ValidationErrors'
-
-const { parseKeymap } = require('../keymapGenerator')
+import { parseKeymap } from '../keymapGenerator'
 
 function OfflinePicker({ onSelect }) {
   const [layoutFile, setLayoutFile] = useState(null)
