@@ -1,6 +1,6 @@
 import behaviours from './data/zmk-behaviors.json'
 import keyBy from 'lodash/keyBy'
-const keymapUtils = require('./shared/keymapUtils')
+import keymapUtils from './shared/keymapUtils'
 
 const behavioursByBind = keyBy(behaviours, 'code')
 
@@ -19,3 +19,4 @@ export function parseKeymap(keymap) {
 export function generateKeymap(layout, keymap, template) {
   return keymapUtils.generateKeymap(layout, keymap, template, behavioursByBind)
 }
+
