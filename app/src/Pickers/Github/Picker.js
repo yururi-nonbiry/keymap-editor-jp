@@ -1,6 +1,6 @@
 import find from 'lodash/find'
 import map from 'lodash/map'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 
 import github from './api'
@@ -34,6 +34,7 @@ function Install() {
 }
 
 function GithubPicker(props) {
+  const { onSelect, hasKeyboardLoaded } = props
   const [state, setState] = useState({
     initialized: false,
     selectedRepoId: null,
@@ -48,7 +49,7 @@ function GithubPicker(props) {
   const { initialized, branches, selectedRepoId, selectedBranchName } = state
   const { loadingBranches, loadingKeyboard, loadError, loadWarnings } = state
 
-  const { onSelect } = props
+  const isFirstRender = useRef(true)
 
   const clearSelection = useCallback(() => {
     setState(state => ({
@@ -167,8 +168,13 @@ function GithubPicker(props) {
     }
 
     storage.setPersistedBranch(selectedRepoId, selectedBranchName)
+    if (isFirstRender.current && hasKeyboardLoaded) {
+      isFirstRender.current = false
+      return
+    }
+    isFirstRender.current = false
     loadKeyboard()
-  }, [selectedRepoId, selectedBranchName, loadKeyboard])
+  }, [selectedRepoId, selectedBranchName, loadKeyboard, hasKeyboardLoaded])
 
   if (!initialized) {
     return null
@@ -244,7 +250,8 @@ function GithubPicker(props) {
 }
 
 GithubPicker.propTypes = {
-  onSelect: PropTypes.func.isRequired
+  onSelect: PropTypes.func.isRequired,
+  hasKeyboardLoaded: PropTypes.bool
 }
 
 export default GithubPicker

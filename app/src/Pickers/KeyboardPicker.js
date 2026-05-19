@@ -1,5 +1,5 @@
 import compact from 'lodash/compact'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 
 import * as config from '../config'
@@ -11,10 +11,11 @@ import GithubPicker from './Github/Picker'
 import OfflinePicker from './OfflinePicker'
 
 function KeyboardPicker(props) {
-  const { onSelect } = props
+  const { onSelect, hasKeyboardLoaded } = props
   const [backendConnected, setBackendConnected] = useState(false)
   const [checkingBackend, setCheckingBackend] = useState(true)
   const [source, setSource] = useState(null)
+  const isFirstRender = useRef(true)
 
   const sourceChoices = useMemo(() => {
     if (checkingBackend) {
@@ -88,9 +89,14 @@ function KeyboardPicker(props) {
     if (!source) return
     localStorage.setItem('selectedSource', source)
     if (source === 'local') {
+      if (isFirstRender.current && hasKeyboardLoaded) {
+        isFirstRender.current = false
+        return
+      }
+      isFirstRender.current = false
       fetchLocalKeyboard()
     }
-  }, [source, fetchLocalKeyboard])
+  }, [source, fetchLocalKeyboard, hasKeyboardLoaded])
 
   return (
     <div>
@@ -112,7 +118,7 @@ function KeyboardPicker(props) {
           />
 
           {source === 'github' && (
-            <GithubPicker onSelect={handleKeyboardSelected} />
+            <GithubPicker onSelect={handleKeyboardSelected} hasKeyboardLoaded={hasKeyboardLoaded} />
           )}
 
           {source === 'upload' && (
@@ -125,7 +131,8 @@ function KeyboardPicker(props) {
 }
 
 KeyboardPicker.propTypes = {
-  onSelect: PropTypes.func.isRequired
+  onSelect: PropTypes.func.isRequired,
+  hasKeyboardLoaded: PropTypes.bool
 }
 
 export default KeyboardPicker

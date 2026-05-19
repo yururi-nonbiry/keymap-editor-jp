@@ -1,6 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import keyBy from 'lodash/keyBy'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 
 import * as config from './config'
 import './App.css';
@@ -16,16 +16,47 @@ import Loader from './Common/Loader'
 import github from './Pickers/Github/api'
 import Selector from './Common/Selector'
 import { getJpDefinitions } from './jpLayout'
+import SavedSessions from './SavedSessions'
 
 function App() {
   const [definitions, setDefinitions] = useState(null)
-  const [source, setSource] = useState(null)
-  const [sourceOther, setSourceOther] = useState(null)
-  const [layout, setLayout] = useState(null)
-  const [keymap, setKeymap] = useState(null)
-  const [editingKeymap, setEditingKeymap] = useState(null)
+
+  // Retrieve saved session on initial render
+  const savedSession = useMemo(() => {
+    const saved = localStorage.getItem('keymap-editor:last-session')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch (e) {
+        console.error('Failed to parse last session from storage', e)
+      }
+    }
+    return null
+  }, [])
+
+  const [source, setSource] = useState(savedSession?.source || null)
+  const [sourceOther, setSourceOther] = useState(savedSession?.sourceOther || null)
+  const [layout, setLayout] = useState(savedSession?.layout || null)
+  const [keymap, setKeymap] = useState(savedSession?.keymap || null)
+  const [editingKeymap, setEditingKeymap] = useState(savedSession?.editingKeymap || null)
   const [saving, setSaving] = useState(false)
   const [keyboardLayout, setKeyboardLayout] = useState(localStorage.getItem('keyboardLayout') || 'US')
+
+  // Autosave session to localStorage
+  useEffect(() => {
+    if (source || layout || keymap || editingKeymap) {
+      const session = {
+        source,
+        sourceOther,
+        layout,
+        keymap,
+        editingKeymap
+      }
+      localStorage.setItem('keymap-editor:last-session', JSON.stringify(session))
+    } else {
+      localStorage.removeItem('keymap-editor:last-session')
+    }
+  }, [source, sourceOther, layout, keymap, editingKeymap])
 
   const handleLayoutChange = useCallback((newLayout) => {
     setKeyboardLayout(newLayout)
@@ -121,6 +152,14 @@ function App() {
     setEditingKeymap
   ])
 
+  const handleLoadSession = useCallback((session) => {
+    setSource(session.source)
+    setSourceOther(session.sourceOther)
+    setLayout(session.layout)
+    setKeymap(session.keymap)
+    setEditingKeymap(session.editingKeymap)
+  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap])
+
   const initialize = useCallback(async () => {
     const [keycodes, behaviours] = await Promise.all([
       loadKeycodes(),
@@ -137,11 +176,15 @@ function App() {
     setEditingKeymap(keymap)
   }, [setEditingKeymap])
 
+  const hasKeyboardLoaded = useMemo(() => {
+    return !!layout && (!!keymap || !!editingKeymap)
+  }, [layout, keymap, editingKeymap])
+
   return (
     <>
       <Loader load={initialize}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', padding: '10px' }}>
-          <KeyboardPicker onSelect={handleKeyboardSelected} />
+          <KeyboardPicker onSelect={handleKeyboardSelected} hasKeyboardLoaded={hasKeyboardLoaded} />
           <Selector
             id="keyboard-layout"
             label="Keyboard Layout"
@@ -151,6 +194,10 @@ function App() {
               { id: 'JP', name: 'Japanese (JIS) Layout' }
             ]}
             onUpdate={handleLayoutChange}
+          />
+          <SavedSessions
+            currentSession={{ source, sourceOther, layout, keymap, editingKeymap }}
+            onLoadSession={handleLoadSession}
           />
         </div>
         <div id="actions">
