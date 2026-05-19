@@ -16,7 +16,7 @@ class KeymapValidationError extends Error {
   }
 }
 
-const behaviours = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/zmk-behaviors.json')))
+const behaviours = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../app/src/data/zmk-behaviors.json')))
 const behavioursByBind = keyBy(behaviours, 'code')
 
 function parseKeymap(keymap) {

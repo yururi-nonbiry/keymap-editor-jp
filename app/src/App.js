@@ -7,7 +7,6 @@ import './App.css';
 import { DefinitionsContext } from './providers'
 import { loadKeycodes } from './keycodes'
 import { loadBehaviours } from './api'
-import { generateKeymap } from './keymapGenerator'
 import KeyboardPicker from './Pickers/KeyboardPicker';
 import Spinner from './Common/Spinner';
 import Keyboard from './Keyboard/Keyboard'
@@ -17,6 +16,8 @@ import github from './Pickers/Github/api'
 import Selector from './Common/Selector'
 import { getJpDefinitions } from './jpLayout'
 import SavedSessions from './SavedSessions'
+
+const { generateKeymap } = require('./keymapGenerator')
 
 function App() {
   const [definitions, setDefinitions] = useState(null)

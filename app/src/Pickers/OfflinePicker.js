@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { parseKeymap } from '../keymapGenerator'
 import ValidationErrors from './Github/ValidationErrors'
+
+const { parseKeymap } = require('../keymapGenerator')
 
 function OfflinePicker({ onSelect }) {
   const [layoutFile, setLayoutFile] = useState(null)
@@ -10,7 +11,7 @@ function OfflinePicker({ onSelect }) {
   const [keymapData, setKeymapData] = useState(null)
   const [error, setError] = useState(null)
 
-  const handleLayoutChange = (e) => {
+  const handleLayoutChange = useCallback((e) => {
     const file = e.target.files[0]
     if (!file) return
     setLayoutFile(file)
@@ -41,9 +42,9 @@ function OfflinePicker({ onSelect }) {
       }
     }
     reader.readAsText(file)
-  }
+  }, [setLayoutFile, setLayoutData, setError])
 
-  const handleKeymapChange = (e) => {
+  const handleKeymapChange = useCallback((e) => {
     const file = e.target.files[0]
     if (!file) return
     setKeymapFile(file)
@@ -65,9 +66,9 @@ function OfflinePicker({ onSelect }) {
       }
     }
     reader.readAsText(file)
-  }
+  }, [setKeymapFile, setKeymapData, setError])
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     if (layoutData && keymapData) {
       onSelect({
         layout: layoutData,
@@ -75,7 +76,7 @@ function OfflinePicker({ onSelect }) {
         source: 'upload'
       })
     }
-  }
+  }, [layoutData, keymapData, onSelect])
 
   return (
     <div className="offline-picker" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>

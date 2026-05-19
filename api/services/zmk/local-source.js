@@ -15,11 +15,11 @@ const EMPTY_KEYMAP = {
 }
 
 function loadBehaviors() {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'zmk-behaviors.json')))
+  return JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'app', 'src', 'data', 'zmk-behaviors.json')))
 }
 
 function loadKeycodes() {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'zmk-keycodes.json')))
+  return JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'app', 'src', 'data', 'zmk-keycodes.json')))
 }
 
 function findLayoutFile() {
