@@ -14,6 +14,8 @@ import Keyboard from './Keyboard/Keyboard'
 import GitHubLink from './GitHubLink'
 import Loader from './Common/Loader'
 import github from './Pickers/Github/api'
+import Selector from './Common/Selector'
+import { getJpDefinitions } from './jpLayout'
 
 function App() {
   const [definitions, setDefinitions] = useState(null)
@@ -23,6 +25,20 @@ function App() {
   const [keymap, setKeymap] = useState(null)
   const [editingKeymap, setEditingKeymap] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [keyboardLayout, setKeyboardLayout] = useState(localStorage.getItem('keyboardLayout') || 'US')
+
+  const handleLayoutChange = useMemo(() => function(newLayout) {
+    setKeyboardLayout(newLayout)
+    localStorage.setItem('keyboardLayout', newLayout)
+  }, [setKeyboardLayout])
+
+  const translatedDefinitions = useMemo(() => {
+    if (!definitions) return null
+    if (keyboardLayout === 'JP') {
+      return getJpDefinitions(definitions)
+    }
+    return definitions
+  }, [definitions, keyboardLayout])
 
   function handleCompile() {
     fetch(`${config.apiBaseUrl}/keymap`, {
@@ -126,7 +142,19 @@ function App() {
   return (
     <>
       <Loader load={initialize}>
-        <KeyboardPicker onSelect={handleKeyboardSelected} />
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', padding: '10px' }}>
+          <KeyboardPicker onSelect={handleKeyboardSelected} />
+          <Selector
+            id="keyboard-layout"
+            label="Keyboard Layout"
+            value={keyboardLayout}
+            choices={[
+              { id: 'US', name: 'US Layout' },
+              { id: 'JP', name: 'Japanese (JIS) Layout' }
+            ]}
+            onUpdate={handleLayoutChange}
+          />
+        </div>
         <div id="actions">
           {source === 'local' && (
             <button disabled={!editingKeymap} onClick={handleCompile}>
@@ -154,7 +182,7 @@ function App() {
             </>
           )}
         </div>
-        <DefinitionsContext.Provider value={definitions}>
+        <DefinitionsContext.Provider value={translatedDefinitions}>
           {layout && keymap && (
             <Keyboard
               layout={layout}
