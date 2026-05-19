@@ -1,22 +1,31 @@
-import behaviours from './data/zmk-behaviors.json'
-import keyBy from 'lodash/keyBy'
-import keymapUtils from './shared/keymapUtils'
+const behaviours = require('./data/zmk-behaviors.json')
+const keyBy = require('lodash/keyBy')
+const keymapUtils = require('./shared/keymapUtils')
 
 const behavioursByBind = keyBy(behaviours, 'code')
 
-export function renderTable(layout, layer, opts) {
+function renderTable(layout, layer, opts) {
   return keymapUtils.renderTable(layout, layer, opts)
 }
 
-export function parseKeyBinding(binding) {
+function parseKeyBinding(binding) {
   return keymapUtils.parseKeyBinding(binding)
 }
 
-export function parseKeymap(keymap) {
+function parseKeymap(keymap) {
   return keymapUtils.parseKeymap(keymap)
 }
 
-export function generateKeymap(layout, keymap, template) {
+function generateKeymap(layout, keymap, template) {
   return keymapUtils.generateKeymap(layout, keymap, template, behavioursByBind)
 }
+
+module.exports = {
+  renderTable,
+  parseKeyBinding,
+  parseKeymap,
+  generateKeymap
+}
+
+
 
