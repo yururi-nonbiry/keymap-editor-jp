@@ -88,7 +88,7 @@ The code in this repo is available under the MIT license.
 The collection of ZMK keycodes is taken from the ZMK documentation under the MIT
 license as well.
 
-[Keymap Editor]: https://nickcoutsos.github.io/keymap-editor/
+[Keymap Editor]: https://yururi-nonbiry.github.io/keymap-editor-jp/
 [keymap-editor-demo-crkbd]: https://github.com/nickcoutsos/keymap-editor-demo-crkbd/
 [keymap-editor-demo-crkbd template]: https://github.com/nickcoutsos/keymap-editor-demo-crkbd/generate
 [Wiki:Automatic Layout Generation]: https://github.com/nickcoutsos/keymap-editor/wiki/Defining-keyboard-layouts#automatic-layout-generation

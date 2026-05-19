@@ -9,7 +9,7 @@ receives key bindings already parsed into a tree of values and parameters.
 
 ## Building
 
-The easiest way to use this is the [hosted version](https://nickcoutsos.github.io/keymap-editor).
+The easiest way to use this is the [hosted version](https://yururi-nonbiry.github.io/keymap-editor-jp/).
 The second easiest is locally, served up via the API itself (in the repo root,
 run `npm run dev` and open `http://localhost:8080` in your browser).
 
