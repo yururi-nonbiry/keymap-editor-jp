@@ -29,7 +29,7 @@ interface KeyProps {
   label?: string;
   value: Value;
   params: any[];
-  onUpdate: (updated: { value: Value; params: any[] }) => void;
+  onUpdate: (updated: any) => void;
 }
 
 interface EditingState {
