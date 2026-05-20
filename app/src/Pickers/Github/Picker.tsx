@@ -1,10 +1,40 @@
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import find from 'lodash/find'
 import map from 'lodash/map'
-import React, { useCallback, useEffect, useState, useRef } from 'react'
+
+import github from './api'
+import * as storage from './storage'
+import ValidationErrors from './ValidationErrors'
+
+import IconButton from '../../Common/IconButton'
+import Selector from '../../Common/Selector'
+import Spinner from '../../Common/Spinner'
 
 interface GithubPickerProps {
   onSelect: (event: any) => void;
   hasKeyboardLoaded?: boolean;
+}
+
+function Login() {
+  return (
+    <IconButton
+      collection="brands"
+      icon="github"
+      text="Login with GitHub"
+      onClick={() => github.beginLoginFlow()}
+    />
+  )
+}
+
+function Install() {
+  return (
+    <IconButton
+      collection="brands"
+      icon="github"
+      text="Add Repository"
+      onClick={() => github.beginInstallAppFlow()}
+    />
+  )
 }
 
 function GithubPicker(props: GithubPickerProps) {
@@ -221,11 +251,6 @@ function GithubPicker(props: GithubPickerProps) {
       )}
     </>
   )
-}
-
-GithubPicker.propTypes = {
-  onSelect: PropTypes.func.isRequired,
-  hasKeyboardLoaded: PropTypes.bool
 }
 
 export default GithubPicker
