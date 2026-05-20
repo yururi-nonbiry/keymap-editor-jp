@@ -8,7 +8,7 @@ import { getBehaviourParams } from '../../keymap';
 import { getKeyStyles, Position, Size, Rotation } from '../../key-units';
 
 import KeyParamlist from './KeyParamlist';
-import { KeyNode, Value, Param } from './keyTypes';
+import { Value } from './keyTypes';
 import {
   createPromptMessage,
   hydrateTree,
@@ -139,7 +139,7 @@ function Key(props: KeyProps) {
       if (currentParams.length > 1 && (isLeft || isRight)) {
         const updated = cloneDeep(normalized);
         const paramIndex = isLeft ? 0 : 1;
-        if (droppedParam) {
+        if (droppedParam && updated.params) {
           updated.params[paramIndex] = droppedParam;
         }
         onUpdate(pick(updated, ['value', 'params']));
