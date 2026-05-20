@@ -1,7 +1,8 @@
+import React from "react"
 import DialogBox from "../../Common/DialogBox"
 import Modal from "../../Common/Modal"
 
-function fileFromTitle(title) {
+function fileFromTitle(title: string) {
   if (title === 'InfoValidationError') {
     return 'config/info.json'
   } else if (title === 'KeymapValidationError') {
@@ -9,7 +10,7 @@ function fileFromTitle(title) {
   }
 }
 
-const listStyle = {
+const listStyle: React.CSSProperties = {
   maxHeight: '300px',
   overflow: 'auto',
   padding: '10px',
@@ -18,9 +19,16 @@ const listStyle = {
   backgroundColor: '#efefef'
 }
 
-const listItemStyle = { margin: '10px' }
+const listItemStyle: React.CSSProperties = { margin: '10px' }
 
-export default function ValidationErrors(props) {
+interface ValidationErrorsProps {
+  onDismiss: () => void;
+  title: string;
+  errors: string[];
+  otherRepoOrBranchAvailable?: boolean;
+}
+
+export default function ValidationErrors(props: ValidationErrorsProps) {
   const { onDismiss, title, errors,  otherRepoOrBranchAvailable = false } = props
   const file = fileFromTitle(title)
 

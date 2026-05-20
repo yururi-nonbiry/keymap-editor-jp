@@ -1,39 +1,13 @@
 import find from 'lodash/find'
 import map from 'lodash/map'
-import { useCallback, useEffect, useState, useRef } from 'react'
-import PropTypes from 'prop-types'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 
-import github from './api'
-import * as storage from './storage'
-import ValidationErrors from './ValidationErrors'
-
-import IconButton from '../../Common/IconButton'
-import Selector from '../../Common/Selector'
-import Spinner from '../../Common/Spinner'
-
-function Login() {
-  return (
-    <IconButton
-      collection="brands"
-      icon="github"
-      text="Login with GitHub"
-      onClick={() => github.beginLoginFlow()}
-    />
-  )
+interface GithubPickerProps {
+  onSelect: (event: any) => void;
+  hasKeyboardLoaded?: boolean;
 }
 
-function Install() {
-  return (
-    <IconButton
-      collection="brands"
-      icon="github"
-      text="Add Repository"
-      onClick={() => github.beginInstallAppFlow()}
-    />
-  )
-}
-
-function GithubPicker(props) {
+function GithubPicker(props: GithubPickerProps) {
   const { onSelect, hasKeyboardLoaded } = props
   const [state, setState] = useState({
     initialized: false,

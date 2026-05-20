@@ -1,7 +1,13 @@
+import React from "react"
 import Modal from "../../Common/Modal"
 import DialogBox from "../../Common/DialogBox"
 
-export default function InvalidRepo(props) {
+interface InvalidRepoProps {
+  onDismiss: () => void;
+  otherRepoOrBranchAvailable?: boolean;
+}
+
+export default function InvalidRepo(props: InvalidRepoProps) {
   const { onDismiss, otherRepoOrBranchAvailable = false } = props
   const demoRepoUrl = 'https://github.com/nickcoutsos/zmk-config-corne-demo/'
 
