@@ -96,6 +96,28 @@ function Key(props: KeyProps) {
     onUpdate(pick(updated, ['value', 'params']) as { value: Value; params: any[] });
   }
 
+  function onDragStart(event: React.DragEvent) {
+    event.dataTransfer.setData('application/json', JSON.stringify({ value, params }));
+  }
+
+  function onDragOver(event: React.DragEvent) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  }
+
+  function onDrop(event: React.DragEvent) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('application/json');
+    if (data) {
+      try {
+        const payload = JSON.parse(data);
+        onUpdate(payload);
+      } catch (e) {
+        console.error('Failed to parse dropped key data', e);
+      }
+    }
+  }
+
   return (
     <div
       className={styles.key}
@@ -110,6 +132,10 @@ function Key(props: KeyProps) {
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
       onClick={handleSelectBehaviour}
+      draggable={true}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
     >
     {behaviour ? (
       <span

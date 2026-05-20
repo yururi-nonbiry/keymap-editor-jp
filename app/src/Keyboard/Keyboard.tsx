@@ -6,6 +6,7 @@ import times from 'lodash/times';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 
 import KeyboardLayout from './KeyboardLayout';
+import KeyPalette from './KeyPalette';
 import LayerSelector from './LayerSelector';
 import { getKeyBoundingBox } from '../key-units';
 import { DefinitionsContext, SearchContext } from '../providers';
@@ -15,10 +16,11 @@ interface KeyboardProps {
   layout: any[];
   keymap: Keymap;
   onUpdate: (updated: Keymap) => void;
+  keyboardLayoutType?: string;
 }
 
 function Keyboard(props: KeyboardProps) {
-  const { layout, keymap, onUpdate } = props;
+  const { layout, keymap, onUpdate, keyboardLayoutType = 'US' } = props;
   const [activeLayer, setActiveLayer] = useState(0);
   const { keycodes, behaviours } = useContext(DefinitionsContext);
 
@@ -160,9 +162,11 @@ function Keyboard(props: KeyboardProps) {
             />
           )}
         </div>
+        <KeyPalette layoutType={keyboardLayoutType} />
       </SearchContext.Provider>
     </>
   );
 }
+
 
 export default Keyboard;

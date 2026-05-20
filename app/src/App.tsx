@@ -248,6 +248,7 @@ function App() {
               layout={layout}
               keymap={(editingKeymap || keymap) as Keymap}
               onUpdate={handleUpdateKeymap}
+              keyboardLayoutType={keyboardLayout}
             />
           )}
         </DefinitionsContext.Provider>
