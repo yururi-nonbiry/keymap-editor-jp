@@ -123,7 +123,7 @@ function GithubPicker(props: GithubPickerProps) {
     github.init().then(() => {
       const persistedRepoId = storage.getPersistedRepository()
       const repositories = github.repositories || []
-      let selectedRepoId
+      let selectedRepoId: string | null = null
 
       if (find(repositories, { id: persistedRepoId })) {
         selectedRepoId = persistedRepoId
