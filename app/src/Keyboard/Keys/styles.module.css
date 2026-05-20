@@ -8,6 +8,7 @@
 	background-color: whitesmoke;
 	font-size: 110%;
 	border-radius: 5px;
+	cursor: pointer;
 }
 .key:hover {
 	background-color: var(--hover-selection);

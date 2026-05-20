@@ -88,6 +88,7 @@ function Key(props) {
       style={positioningStyle}
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
+      onClick={handleSelectBehaviour}
     >
     {behaviour ? (
       <span
