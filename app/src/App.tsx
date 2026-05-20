@@ -22,6 +22,7 @@ import { getJpDefinitions } from './jpLayout';
 import SavedSessions from './SavedSessions';
 import { generateKeymap } from './keymapGenerator';
 import { Keymap } from './shared/keymapUtils';
+import pkg from '../package.json';
 
 interface Session {
   source: string | null;
@@ -251,7 +252,10 @@ function App() {
           )}
         </DefinitionsContext.Provider>
       </Loader>
-      <GitHubLink className="github-link" />
+      <div className="footer">
+        <GitHubLink className="github-link" />
+        <span className="version">v{pkg.version}</span>
+      </div>
     </>
   );
 }

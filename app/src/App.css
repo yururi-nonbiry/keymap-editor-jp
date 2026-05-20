@@ -38,12 +38,18 @@ html, body {
   cursor: not-allowed;
 }
 
-.github-link {
-  display: inline-block;
+.footer {
   position: absolute;
   z-index: 100;
   bottom: 5px;
   left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.github-link {
+  display: inline-block;
   font-size: 110%;
   font-style: italic;
   background-color: white;
@@ -52,6 +58,15 @@ html, body {
   text-decoration: none;
 
   color: royalblue;
+}
+
+.version {
+  font-size: 0.9rem;
+  color: #666;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-style: italic;
 }
 
 /* Saved Sessions UI Styles */
