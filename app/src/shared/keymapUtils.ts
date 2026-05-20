@@ -231,11 +231,22 @@ export function parseKeymapDts(content: string): { layers: string[][]; layer_nam
   const layers: string[][] = [];
   const layerNames: string[] = [];
 
-  // Try to find the keymap node content
-  let searchScope = content;
-  const keymapMatch = content.match(/keymap\s*\{([\s\S]*?)\};/);
-  if (keymapMatch) {
-    searchScope = keymapMatch[1];
+  const cleanContent = stripComments(content);
+  let searchScope = cleanContent;
+
+  const keymapStartMatch = cleanContent.match(/keymap\s*\{/);
+  if (keymapStartMatch) {
+    const startPos = (keymapStartMatch.index || 0) + keymapStartMatch[0].length;
+    let depth = 1;
+    let pos = startPos;
+    while (depth > 0 && pos < cleanContent.length) {
+      if (cleanContent[pos] === '{') depth++;
+      else if (cleanContent[pos] === '}') depth--;
+      pos++;
+    }
+    if (depth === 0) {
+      searchScope = cleanContent.substring(startPos, pos - 1);
+    }
   }
 
   const layerRegex = /([\w-]+)\s*\{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;[\s\S]*?\};/g;
@@ -244,7 +255,7 @@ export function parseKeymapDts(content: string): { layers: string[][]; layer_nam
     const name = match[1];
     const bindingsText = match[2];
     
-    const cleanBindings = stripComments(bindingsText).replace(/\s+/g, ' ').trim();
+    const cleanBindings = bindingsText.replace(/\s+/g, ' ').trim();
     const tokens = cleanBindings.split(' ').filter(t => t.length > 0);
     
     const bindingStrings: string[] = [];

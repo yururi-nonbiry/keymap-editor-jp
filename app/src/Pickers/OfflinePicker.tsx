@@ -62,8 +62,8 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
           json = JSON.parse(content);
         }
 
-        if (!json.layers || !Array.isArray(json.layers)) {
-          throw new Error('Invalid keymap file. Must contain a "layers" array or ZMK bindings.');
+        if (!json.layers || !Array.isArray(json.layers) || json.layers.length === 0) {
+          throw new Error('Invalid keymap file. Must contain a "layers" array or ZMK bindings. (No layers found)');
         }
 
         const parsed = parseKeymap(json);
