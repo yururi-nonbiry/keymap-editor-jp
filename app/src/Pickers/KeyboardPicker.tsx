@@ -3,9 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 
 import * as config from '../config';
 import { healthcheck } from '../api';
-// @ts-ignore
 import Selector from "../Common/Selector";
-// @ts-ignore
 import GithubPicker from './Github/Picker';
 import OfflinePicker from './OfflinePicker';
 

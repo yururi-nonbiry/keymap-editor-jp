@@ -66,14 +66,14 @@ function Key(props: KeyProps) {
 
   function handleSelectCode(event: any) {
     const editingData = pick(event, ['target', 'codeIndex', 'code', 'param']) as any;
-    editingData.targets = getSearchTargets(editingData.param, value);
+    editingData.targets = getSearchTargets(editingData.param, String(value));
     setEditing(editingData);
   }
   function handleSelectBehaviour(event: React.MouseEvent) {
     event.stopPropagation();
     setEditing({
       target: event.target as HTMLElement,
-      targets: getSearchTargets('behaviour', value),
+      targets: getSearchTargets('behaviour', String(value)),
       codeIndex: 0,
       code: value,
       param: 'behaviour'
