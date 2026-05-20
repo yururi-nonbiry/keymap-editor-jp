@@ -97,8 +97,8 @@ export function renderTable(layout: LayoutItem[], layer: string[], opts?: Render
   const minWidth = useQuotes ? 9 : 7;
   const table = layer.reduce((map: string[][], code: string, i: number) => {
     if (layout[i]) {
-      const row = layout[i].row !== undefined ? layout[i].row : 0;
-      const col = layout[i].col;
+      const row: number = layout[i].row !== undefined ? layout[i].row! : 0;
+      const col: number | undefined = layout[i].col;
       map[row] = map[row] || [];
       map[row][col !== undefined ? col : map[row].length] = code;
     }
