@@ -1,4 +1,6 @@
-const styles = {
+import React from 'react';
+
+const styles: { [key: string]: React.CSSProperties } = {
   selector: {
     display: 'inline-block',
     width: 'auto',
@@ -12,15 +14,28 @@ const styles = {
   }
 }
 
-export default function Selector(props) {
+interface Choice {
+  id: string;
+  name: string;
+}
+
+interface SelectorProps {
+  id: string;
+  label: string;
+  value: string | null;
+  choices: Choice[];
+  onUpdate: (value: string) => void;
+}
+
+export default function Selector(props: SelectorProps) {
   const { id, label, value, choices, onUpdate } = props
-  const handleSelect = e => {
-    const index = e.target.value
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const index = parseInt(e.target.value, 10)
     const choice = choices[index].id
     onUpdate(choice)
   }
 
-  function index(value) {
+  function index(value: string | null) {
     const result = choices.findIndex(choice => choice.id === value)
     return result === -1 ? '' : result
   }
