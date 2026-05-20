@@ -33,7 +33,7 @@ function KeyParamlist(props: KeyParamlistProps) {
           {get(values[i], 'source.params.length', 0) > 0 ? (
             <KeyParamlist
               index={index}
-              params={get(values[i], 'source.params')}
+              params={get(values[i], 'source.params') || []}
               values={get(values[i], 'params') || []}
               onSelect={onSelect}
             />
