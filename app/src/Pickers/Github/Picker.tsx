@@ -166,6 +166,10 @@ function GithubPicker(props: GithubPickerProps) {
       setState(state => ({ ...state, loadingBranches: true }))
 
       const repository = find(github.repositories, { id: selectedRepoId })
+      if (!repository) {
+        setState(state => ({ ...state, loadingBranches: false, loadError: { name: 'Repository not found', errors: ['Could not find the selected repository for branches.'] } }))
+        return
+      }
       const branches = await github.fetchRepoBranches(repository)
 
       setState(state => ({ ...state, branches, loadingBranches: false }))
