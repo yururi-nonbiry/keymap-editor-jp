@@ -70,7 +70,7 @@ export class API extends EventEmitter {
     const installationUrl = `${config.apiBaseUrl}/github/installation`
     const param = new URLSearchParams(window.location.search).get('token')
     if (!localStorage.auth_token && param) {
-      window.history.replaceState({}, null, window.location.pathname)
+      window.history.replaceState({}, '', window.location.pathname)
       localStorage.auth_token = param
     }
 
