@@ -209,7 +209,8 @@ function GithubPicker(props: GithubPickerProps) {
   if (!github.isGitHubAuthorized()) return <Login />
   if (!github.isAppInstalled()) return <Install />
 
-  const repositoryChoices = github.repositories.map(repo => ({
+  const repositories = github.repositories || []
+  const repositoryChoices = repositories.map(repo => ({
     id: repo.id,
     name: repo.full_name
   }))
