@@ -24,6 +24,7 @@ function ValuePicker (props) {
   const { value, prompt, choices, searchKey, searchThreshold, showAllThreshold } = props
   const { onCancel, onSelect } = props
 
+  const dialogRef = useRef(null)
   const listRef = useRef(null)
 
   const [query, setQuery] = useState(null)
@@ -59,10 +60,10 @@ function ValuePicker (props) {
   }, [onSelect])
 
   const handleClickOutside = useCallback((event) => {
-    if (!listRef.current.contains(event.target)) {
+    if (dialogRef.current && !dialogRef.current.contains(event.target)) {
       onCancel()
     }
-  }, [listRef, onCancel])
+  }, [onCancel])
 
   const handleSelectActive = useCallback(() => {
     if (results.length > 0 && highlighted !== null) {
@@ -130,16 +131,20 @@ function ValuePicker (props) {
     }
   }, [])
 
+  const stopPropagation = useCallback((event) => {
+    event.stopPropagation()
+  }, [])
+
   useEffect(() => {
-    document.body.addEventListener('click', handleClickOutside)
+    document.body.addEventListener('mousedown', handleClickOutside)
 
     return () => {
-      document.body.removeEventListener('click', handleClickOutside)
+      document.body.removeEventListener('mousedown', handleClickOutside)
     }
   }, [handleClickOutside])
 
   return (
-    <div className={style.dialog} onKeyDown={handleKeyDown}>
+    <div className={style.dialog} ref={dialogRef} onKeyDown={handleKeyDown} onClick={stopPropagation}>
       <p>{prompt}</p>
       {choices.length > searchThreshold && (
         <input
