@@ -190,7 +190,7 @@ function ValuePicker (props: ValuePickerProps) {
           >
             {result.search ? (
               <span dangerouslySetInnerHTML={{
-                __html: fuzzysort.highlight(result.search)
+                __html: fuzzysort.highlight(result.search) || ''
               }} />
             ) : (
               <span>
