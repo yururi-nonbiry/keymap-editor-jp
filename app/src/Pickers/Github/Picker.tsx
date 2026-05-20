@@ -9,6 +9,7 @@ import ValidationErrors from './ValidationErrors'
 import IconButton from '../../Common/IconButton'
 import Selector from '../../Common/Selector'
 import Spinner from '../../Common/Spinner'
+import { LayoutItem } from '../../shared/keymapUtils'
 
 interface GithubPickerProps {
   onSelect: (event: any) => void;
@@ -64,7 +65,7 @@ function GithubPicker(props: GithubPickerProps) {
     }))
   }, [setState])
 
-  const lintKeyboard = useCallback(({ layout }) => {
+  const lintKeyboard = useCallback(({ layout }: { layout: LayoutItem[] }) => {
     const noKeyHasPosition = layout.every(key => (
       key.row === undefined &&
       key.col === undefined
