@@ -1,3 +1,5 @@
+import React, { ReactNode } from 'react';
+
 const styles = {
   dialog: {
     backgroundColor: 'white',
@@ -12,7 +14,13 @@ const styles = {
   }
 }
 
-export default function DialogBox(props) {
+interface DialogBoxProps {
+  dismissText?: string;
+  onDismiss: () => void;
+  children: ReactNode;
+}
+
+export default function DialogBox(props: DialogBoxProps) {
   const { dismissText = 'Ok', onDismiss, children } = props
 
   return (
