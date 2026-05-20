@@ -44,6 +44,12 @@
     ]
   },
   "devDependencies": {
-    "env-cmd": "^10.1.0"
+    "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "env-cmd": "^10.1.0",
+    "typescript": "^6.0.3"
   }
 }

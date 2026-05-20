@@ -6,12 +6,14 @@
   "scripts": {
     "postinstall": "cd app && npm install",
     "start": "node index.js",
-    "dev": "cross-env ENABLE_DEV_SERVER=true node index.js",
+    "dev": "cross-env ENABLE_DEV_SERVER=true nodemon --exec ts-node index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "axios": "^0.21.4",
     "body-parser": "^1.19.0",
@@ -26,7 +28,18 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/http-link-header": "^1.0.7",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/lodash": "^4.17.24",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.9.1",
     "eslint": "^8.14.0",
-    "eslint-config-standard": "^17.0.0"
+    "eslint-config-standard": "^17.0.0",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   }
 }
