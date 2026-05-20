@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import KeyboardLayout from './KeyboardLayout';
-import { JIS_LAYOUT, US_LAYOUT } from '../data/standard-layouts';
+import { JIS_LAYOUT, US_LAYOUT, PaletteLayoutItem } from '../data/standard-layouts';
 import { KeyBinding } from '../shared/keymapUtils';
 
 interface KeyPaletteProps {
@@ -25,7 +25,7 @@ function KeyPalette({ layoutType }: KeyPaletteProps) {
 
   // Calculate bounding box to set wrapper height/width
   const boundingBox = useMemo(() => {
-    return layout.reduce((acc, key) => {
+    return (layout as PaletteLayoutItem[]).reduce((acc, key) => {
       const w = key.w || 1;
       const h = key.h || 1;
       return {

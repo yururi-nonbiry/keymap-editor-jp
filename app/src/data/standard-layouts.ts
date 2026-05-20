@@ -1,5 +1,14 @@
 
-export const JIS_LAYOUT = [
+export interface PaletteLayoutItem {
+  x: number;
+  y: number;
+  w?: number;
+  h?: number;
+  label: string;
+  code: string;
+}
+
+export const JIS_LAYOUT: PaletteLayoutItem[] = [
   // Row 0
   { x: 0, y: 0, label: "Esc", code: "ESC" },
   { x: 1, y: 0, label: "1", code: "NUMBER_1" },
@@ -75,7 +84,7 @@ export const JIS_LAYOUT = [
   { x: 11.5, y: 4, w: 1.25, label: "Ctrl", code: "RIGHT_CONTROL" },
 ];
 
-export const US_LAYOUT = [
+export const US_LAYOUT: PaletteLayoutItem[] = [
   // Row 0
   { x: 0, y: 0, label: "Esc", code: "ESC" },
   { x: 1, y: 0, label: "1", code: "NUMBER_1" },
