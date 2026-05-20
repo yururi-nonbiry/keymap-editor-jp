@@ -1,6 +1,7 @@
+import React, { ReactNode } from "react"
 import ReactDOM from "react-dom"
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   wrapper: {
     position: 'absolute',
     top: '0',
@@ -8,7 +9,7 @@ const styles = {
     width: '100vw',
     height: '100vh',
     backgroundColor: 'rgba(104, 123, 162, 0.39)',
-    zIndex: '50',
+    zIndex: 50,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -18,13 +19,17 @@ const styles = {
   }
 }
 
-export default function Modal({ children }) {
+interface ModalProps {
+  children: ReactNode;
+}
+
+export default function Modal({ children }: ModalProps) {
   return ReactDOM.createPortal(
     <div style={styles.wrapper}>
       <div style={styles.content}>
         {children}
       </div>
     </div>,
-    document.getElementById('modal-root')
+    document.getElementById('modal-root')!
   )
 }
