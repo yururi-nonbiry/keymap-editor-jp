@@ -47,7 +47,7 @@ function Key(props: KeyProps) {
   const [editing, setEditing] = useState<EditingState | null>(null);
 
   const bind = value;
-  const behaviour = get(sources.behaviours, bind);
+  const behaviour = get(sources.behaviours, bind || '');
   const behaviourParams = getBehaviourParams(params, behaviour);
 
   const normalized = hydrateTree(value as string, params, sources);
