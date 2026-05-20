@@ -1,34 +1,58 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import EventEmitter from 'eventemitter3'
 
 import * as config from '../../config'
 
-export class API extends EventEmitter {
-  token = null
-  initialized = false
-  installations = null
-  repositories = null
-  repoInstallationMap = null
+interface RequestOptions extends AxiosRequestConfig {
+  url: string;
+}
 
-  async _request (options) {
+interface Repository {
+  id: number;
+  full_name: string;
+  default_branch: string;
+}
+
+interface KeyboardFilesResponse {
+  info: {
+    layouts: {
+      [key: string]: {
+        layout: any[];
+      };
+    };
+  };
+  keymap: any;
+}
+
+export class API extends EventEmitter {
+  token: string | null = null
+  initialized = false
+  installations: any[] | null = null
+  repositories: Repository[] | null = null
+  repoInstallationMap: { [key: string]: string } | null = null
+
+  async _request (options: string | RequestOptions): Promise<AxiosResponse> {
+    let requestOptions: RequestOptions;
     if (typeof options === 'string') {
-      options = {
+      requestOptions = {
         url: options
       }
+    } else {
+      requestOptions = options;
     }
 
-    if (options.url.startsWith('/')) {
-      options.url = `${config.apiBaseUrl}${options.url}`
+    if (requestOptions.url.startsWith('/')) {
+      requestOptions.url = `${config.apiBaseUrl}${requestOptions.url}`
     }
   
-    options.headers = Object.assign({}, options.headers)
-    if (this.token && !options.headers.Authorization) {
-      options.headers.Authorization = `Bearer ${this.token}`
+    requestOptions.headers = Object.assign({}, requestOptions.headers)
+    if (this.token && !requestOptions.headers.Authorization) {
+      requestOptions.headers.Authorization = `Bearer ${this.token}`
     }
     
     try {
-      return await axios(options)
-    } catch (err) {
+      return await axios(requestOptions)
+    } catch (err: any) {
       if (err.response?.status === 401) {
         console.error('Authentication failed.')
         this.emit('authentication-failed', err.response)
@@ -80,10 +104,11 @@ export class API extends EventEmitter {
   }
 
   isAppInstalled() {
-    return this.installations?.length && this.repositories?.length
+    return (this.installations?.length ?? 0) > 0 && (this.repositories?.length ?? 0) > 0
   }
 
-  async fetchRepoBranches(repo) {
+  async fetchRepoBranches(repo: Repository) {
+    if (!this.repoInstallationMap) return []
     const installation = encodeURIComponent(this.repoInstallationMap[repo.full_name])
     const repository = encodeURIComponent(repo.full_name)
     const { data } = await this._request(
@@ -93,7 +118,8 @@ export class API extends EventEmitter {
     return data
   }
 
-  async fetchLayoutAndKeymap(repo, branch) {
+  async fetchLayoutAndKeymap(repo: string, branch: string | null) {
+    if (!this.repoInstallationMap) throw new Error('API not initialized')
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
     const repository = encodeURIComponent(repo)
     const url = new URL(`${config.apiBaseUrl}/github/keyboard-files/${installation}/${repository}`)
@@ -103,13 +129,14 @@ export class API extends EventEmitter {
     }
 
     try {
-      const { data } = await this._request(url.toString())
-      const defaultLayout = data.info.layouts.default || data.info.layouts[Object.keys(data.info.layouts)[0]]
+      const { data } = await this._request(url.toString()) as { data: KeyboardFilesResponse }
+      const layouts = data.info.layouts
+      const defaultLayout = layouts.default || layouts[Object.keys(layouts)[0]]
       return {
         layout: defaultLayout.layout,
         keymap: data.keymap
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err.response?.status === 400) {
         console.error('Failed to load keymap and layout from github', err.response.data)
         this.emit('repo-validation-error', err.response.data)
@@ -119,7 +146,8 @@ export class API extends EventEmitter {
     }
   }
 
-  commitChanges(repo, branch, layout, keymap) {
+  commitChanges(repo: string, branch: string, layout: any, keymap: any) {
+    if (!this.repoInstallationMap) throw new Error('API not initialized')
     const installation = encodeURIComponent(this.repoInstallationMap[repo])
     const repository = encodeURIComponent(repo)
 
