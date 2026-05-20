@@ -16,6 +16,17 @@ interface GithubPickerProps {
   hasKeyboardLoaded?: boolean;
 }
 
+interface PickerState {
+  initialized: boolean;
+  selectedRepoId: string | null;
+  selectedBranchName: string | null;
+  branches: any[];
+  loadingBranches: boolean;
+  loadingKeyboard: boolean;
+  loadError: any;
+  loadWarnings: string[] | null;
+}
+
 function Login() {
   return (
     <IconButton
@@ -40,7 +51,7 @@ function Install() {
 
 function GithubPicker(props: GithubPickerProps) {
   const { onSelect, hasKeyboardLoaded } = props
-  const [state, setState] = useState({
+  const [state, setState] = useState<PickerState>({
     initialized: false,
     selectedRepoId: null,
     selectedBranchName: null,
