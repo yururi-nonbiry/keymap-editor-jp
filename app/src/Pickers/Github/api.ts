@@ -3,14 +3,10 @@ import EventEmitter from 'eventemitter3'
 
 import * as config from '../../config'
 
+import { Repository } from './types'
+
 interface RequestOptions extends AxiosRequestConfig {
   url: string;
-}
-
-interface Repository {
-  id: number;
-  full_name: string;
-  default_branch: string;
 }
 
 interface KeyboardFilesResponse {

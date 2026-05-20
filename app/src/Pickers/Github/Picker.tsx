@@ -10,6 +10,7 @@ import IconButton from '../../Common/IconButton'
 import Selector from '../../Common/Selector'
 import Spinner from '../../Common/Spinner'
 import { LayoutItem } from '../../shared/keymapUtils'
+import { Repository } from './types'
 
 interface GithubPickerProps {
   onSelect: (event: any) => void;
@@ -90,11 +91,16 @@ function GithubPicker(props: GithubPickerProps) {
   }, [setState])
 
   const loadKeyboard = useCallback(async () => {
-    const available = github.repositories
-    const repository = find(available, { id: selectedRepoId })?.full_name
+    const available = github.repositories || []
+    const repository = find(available, (repo: Repository) => String(repo.id) === String(selectedRepoId))?.full_name
     const branch = selectedBranchName
 
     setState(state => ({ ...state, loadingKeyboard: true, loadError: null }))
+
+    if (!repository) {
+      setState(state => ({ ...state, loadingKeyboard: false, loadError: { name: 'Repository not found', errors: ['Could not find the selected repository.'] } }))
+      return
+    }
 
     const response = await github.fetchLayoutAndKeymap(repository, branch)
 
