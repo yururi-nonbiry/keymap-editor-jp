@@ -13,7 +13,9 @@ function KeyPalette({ layoutType }: KeyPaletteProps) {
   const bindings = useMemo<KeyBinding[]>(() => {
     return layout.map(key => ({
       value: `&kp`,
-      params: [key.code]
+      params: [
+        { value: key.code, params: [] }
+      ]
     }));
   }, [layout]);
 
