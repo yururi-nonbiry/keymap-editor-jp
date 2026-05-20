@@ -83,9 +83,9 @@ function KeyboardPicker({ onSelect, hasKeyboardLoaded }: KeyboardPickerProps) {
   const fetchLocalKeyboard = useCallback(async () => {
     try {
       // @ts-ignore
-      const { loadLayout } = await import('../layout.js');
+      const { loadLayout } = await import('../layout');
       // @ts-ignore
-      const { loadKeymap } = await import('../keymap.js');
+      const { loadKeymap } = await import('../keymap');
       
       const [layout, keymap] = await Promise.all([
         loadLayout(),
