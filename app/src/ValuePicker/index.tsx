@@ -1,17 +1,19 @@
 import fuzzysort from 'fuzzysort'
-import PropTypes from 'prop-types'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import style from './style.module.css'
 
-const cycle = (array, index, step=1) => {
+const cycle = (array: any[], index: number, step: number = 1) => {
   const next = (index + step) % array.length
   return next < 0 ? array.length + next : next
 }
 
-function scrollIntoViewIfNeeded (element, alignToTop) {
-  const scroll = element.offsetParent.scrollTop
-  const height = element.offsetParent.offsetHeight
+function scrollIntoViewIfNeeded (element: HTMLElement, alignToTop: boolean) {
+  const parent = element.offsetParent as HTMLElement
+  if (!parent) return
+
+  const scroll = parent.scrollTop
+  const height = parent.offsetHeight
   const top = element.offsetTop
   const bottom = top + element.scrollHeight
 
@@ -20,20 +22,40 @@ function scrollIntoViewIfNeeded (element, alignToTop) {
   }
 }
 
-function ValuePicker (props) {
-  const { value, prompt, choices, searchKey, searchThreshold, showAllThreshold } = props
+interface Choice {
+  code: string;
+  description?: string;
+  search?: any;
+  [key: string]: any;
+}
+
+interface ValuePickerProps {
+  target: HTMLElement;
+  choices: Choice[];
+  param: any;
+  value: string | number | undefined;
+  prompt: string;
+  searchKey: string;
+  searchThreshold?: number;
+  showAllThreshold?: number;
+  onCancel: () => void;
+  onSelect: (choice: Choice) => void;
+}
+
+function ValuePicker (props: ValuePickerProps) {
+  const { value, prompt, choices, searchKey, searchThreshold = 10, showAllThreshold = 50 } = props
   const { onCancel, onSelect } = props
 
-  const dialogRef = useRef(null)
-  const listRef = useRef(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
 
-  const [query, setQuery] = useState(null)
-  const [highlighted, setHighlighted] = useState(null)
+  const [query, setQuery] = useState<string | null>(null)
+  const [highlighted, setHighlighted] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
 
   const results = useMemo(() => {
     const options = { key: searchKey, limit: 30 }
-    const filtered = fuzzysort.go(query, choices, options)
+    const filtered = fuzzysort.go(query || '', choices, options)
 
     if (showAll || searchThreshold > choices.length) {
       return choices
@@ -55,12 +77,12 @@ function ValuePicker (props) {
     )
   }, [showAll, choices, searchThreshold, showAllThreshold])
 
-  const handleClickResult = useCallback((result) => {
+  const handleClickResult = useCallback((result: Choice) => {
     onSelect(result)
   }, [onSelect])
 
-  const handleClickOutside = useCallback((event) => {
-    if (dialogRef.current && !dialogRef.current.contains(event.target)) {
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (dialogRef.current && !dialogRef.current.contains(event.target as Node)) {
       onCancel()
     }
   }, [onCancel])
@@ -71,7 +93,7 @@ function ValuePicker (props) {
     }
   }, [results, highlighted, handleClickResult])
 
-  const setHighlightPosition = useCallback((initial, offset) => {
+  const setHighlightPosition = useCallback((initial: number, offset?: number) => {
     if (results.length === 0) {
       setHighlighted(null)
       return
@@ -86,9 +108,11 @@ function ValuePicker (props) {
       : initial
 
     const selector = `li[data-result-index="${next}"]`
-    const element = listRef.current?.querySelector(selector)
+    const element = listRef.current?.querySelector(selector) as HTMLElement
 
-    scrollIntoViewIfNeeded(element, false)
+    if (element) {
+      scrollIntoViewIfNeeded(element, false)
+    }
     setHighlighted(next)
   }, [results, highlighted, setHighlighted])
 
@@ -100,12 +124,12 @@ function ValuePicker (props) {
     setHighlightPosition(results.length - 1, -1)
   }, [setHighlightPosition, results])
 
-  const handleKeyPress = useCallback((event) => {
+  const handleKeyPress = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value)
   }, [setQuery])
 
-  const handleKeyDown = useCallback((event) => {
-    const mapping = {
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    const mapping: Record<string, () => void> = {
       ArrowDown: handleHighlightNext,
       ArrowUp: handleHightightPrev,
       Enter: handleSelectActive,
@@ -124,14 +148,14 @@ function ValuePicker (props) {
     onCancel
   ])
 
-  const focusSearch = useCallback(node => {
+  const focusSearch = useCallback((node: HTMLInputElement | null) => {
     if (node) {
       node.focus()
       node.select()
     }
   }, [])
 
-  const stopPropagation = useCallback((event) => {
+  const stopPropagation = useCallback((event: React.MouseEvent) => {
     event.stopPropagation()
   }, [])
 
@@ -150,7 +174,7 @@ function ValuePicker (props) {
         <input
           ref={focusSearch}
           type="text"
-          value={query !== null ? query : value}
+          value={query !== null ? query : (String(value || ''))}
           onChange={handleKeyPress}
         />
       )}
@@ -186,27 +210,6 @@ function ValuePicker (props) {
       )}
     </div>
   )
-}
-
-ValuePicker.propTypes = {
-  target: PropTypes.object.isRequired,
-  choices: PropTypes.array.isRequired,
-  param: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]).isRequired,
-  value: PropTypes.string.isRequired,
-  prompt: PropTypes.string.isRequired,
-  searchKey: PropTypes.string.isRequired,
-  searchThreshold: PropTypes.number,
-  showAllThreshold: PropTypes.number,
-  onCancel: PropTypes.func.isRequired,
-  onSelect: PropTypes.func.isRequired
-}
-
-ValuePicker.defaultProps = {
-  searchThreshold: 10,
-  showAllThreshold: 50
 }
 
 export default ValuePicker
