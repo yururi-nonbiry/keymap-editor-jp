@@ -45,6 +45,7 @@ function Key(props: KeyProps) {
   const { position, rotation, size } = props;
   const { label, value, params, onUpdate } = props;
   const [editing, setEditing] = useState<EditingState | null>(null);
+  const [dragSide, setDragSide] = useState<'left' | 'right' | 'none'>('none');
 
   const bind = value;
   const behaviour = get(sources.behaviours, bind || '');
@@ -103,24 +104,80 @@ function Key(props: KeyProps) {
   function onDragOver(event: React.DragEvent) {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'copy';
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const isLeft = x < rect.width * 2 / 5;
+    const isRight = x > rect.width * 3 / 5;
+
+    if (isLeft) setDragSide('left');
+    else if (isRight) setDragSide('right');
+    else setDragSide('none');
+  }
+
+  function onDragLeave() {
+    setDragSide('none');
   }
 
   function onDrop(event: React.DragEvent) {
     event.preventDefault();
+    setDragSide('none');
     const data = event.dataTransfer.getData('application/json');
-    if (data) {
-      try {
-        const payload = JSON.parse(data);
-        onUpdate(payload);
-      } catch (e) {
-        console.error('Failed to parse dropped key data', e);
+    if (!data) return;
+
+    try {
+      const payload = JSON.parse(data);
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const isLeft = x < rect.width * 2 / 5;
+      const isRight = x > rect.width * 3 / 5;
+
+      const currentParams = normalized.params || [];
+      const droppedParam = payload.params?.[0];
+
+      // If we dropped on the left or right of a multi-param behavior
+      if (currentParams.length > 1 && (isLeft || isRight)) {
+        const updated = cloneDeep(normalized);
+        const paramIndex = isLeft ? 0 : 1;
+        if (droppedParam) {
+          updated.params[paramIndex] = droppedParam;
+        }
+        onUpdate(pick(updated, ['value', 'params']));
+        return;
       }
+
+      // If we dropped on the left of a single-param behavior (like &kp)
+      // and the dropped item is a modifier or layer, try to create &mt or &lt
+      if (currentParams.length === 1 && isLeft && droppedParam) {
+        const droppedValue = droppedParam.value;
+        const isModifier = !!sources.mod[droppedValue];
+        const isLayer = !!sources.layer[droppedValue];
+
+        if (isModifier) {
+          onUpdate({
+            value: '&mt',
+            params: [droppedParam, currentParams[0]]
+          });
+          return;
+        } else if (isLayer) {
+          onUpdate({
+            value: '&lt',
+            params: [droppedParam, currentParams[0]]
+          });
+          return;
+        }
+      }
+
+      // Default behavior: replace everything
+      onUpdate(payload);
+    } catch (e) {
+      console.error('Failed to parse dropped key data', e);
     }
   }
 
   return (
     <div
-      className={styles.key}
+      className={`${styles.key} ${dragSide === 'left' ? styles['highlight-left'] : ''} ${dragSide === 'right' ? styles['highlight-right'] : ''}`}
       data-label={label}
       data-u={size.u}
       data-h={size.h}
@@ -135,6 +192,7 @@ function Key(props: KeyProps) {
       draggable={true}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
     {behaviour ? (

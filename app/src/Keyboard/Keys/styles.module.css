@@ -44,6 +44,30 @@
 	color: var(--hover-selection) !important;
 }
 
+.key.highlight-left::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 50%;
+	background-color: rgba(255, 255, 255, 0.3);
+	border-radius: 5px 0 0 5px;
+	pointer-events: none;
+}
+
+.key.highlight-right::before {
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 50%;
+	background-color: rgba(255, 255, 255, 0.3);
+	border-radius: 0 5px 5px 0;
+	pointer-events: none;
+}
+
 .code * {
 	pointer-events: none;
 }
