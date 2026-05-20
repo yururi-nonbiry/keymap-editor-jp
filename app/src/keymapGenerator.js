@@ -16,6 +16,10 @@ export function parseKeymap(keymap) {
   return keymapUtils.parseKeymap(keymap)
 }
 
+export function parseKeymapDts(content) {
+  return keymapUtils.parseKeymapDts(content)
+}
+
 export function generateKeymap(layout, keymap, template) {
   return keymapUtils.generateKeymap(layout, keymap, template, behavioursByBind)
 }

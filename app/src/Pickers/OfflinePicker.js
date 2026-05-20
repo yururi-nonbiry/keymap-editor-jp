@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import ValidationErrors from './Github/ValidationErrors'
-import { parseKeymap } from '../keymapGenerator'
+import { parseKeymap, parseKeymapDts } from '../keymapGenerator'
 
 function OfflinePicker({ onSelect }) {
   const [layoutFile, setLayoutFile] = useState(null)
@@ -50,9 +50,16 @@ function OfflinePicker({ onSelect }) {
     const reader = new FileReader()
     reader.onload = (event) => {
       try {
-        const json = JSON.parse(event.target.result)
+        const content = event.target.result
+        let json
+        if (file.name.toLowerCase().endsWith('.keymap')) {
+          json = parseKeymapDts(content)
+        } else {
+          json = JSON.parse(content)
+        }
+
         if (!json.layers || !Array.isArray(json.layers)) {
-          throw new Error('Invalid keymap JSON. Must contain a "layers" array.')
+          throw new Error('Invalid keymap file. Must contain a "layers" array or ZMK bindings.')
         }
 
         const parsed = parseKeymap(json)
@@ -81,7 +88,7 @@ function OfflinePicker({ onSelect }) {
     <div className="offline-picker" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <h3>Offline Mode - File Upload</h3>
       <p style={{ fontSize: '0.9em', color: '#666' }}>
-        Please upload your layout and keymap JSON files to start editing offline.
+        Please upload your layout (info.json) and keymap (keymap.json or .keymap) files to start editing offline.
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -91,8 +98,8 @@ function OfflinePicker({ onSelect }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontWeight: 'bold' }}>Keymap JSON File (keymap.json):</label>
-        <input type="file" accept=".json" onChange={handleKeymapChange} />
+        <label style={{ fontWeight: 'bold' }}>Keymap File (keymap.json or .keymap):</label>
+        <input type="file" accept=".json,.keymap" onChange={handleKeymapChange} />
         {keymapFile && <span style={{ color: 'green', fontSize: '0.85em' }}>✓ Loaded: {keymapFile.name}</span>}
       </div>
 

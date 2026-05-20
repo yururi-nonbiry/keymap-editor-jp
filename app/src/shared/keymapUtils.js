@@ -181,6 +181,56 @@ function parseKeymap(keymap) {
   })
 }
 
+function stripComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
+}
+
+function parseKeymapDts(content) {
+  const layers = []
+  const layerNames = []
+
+  // Try to find the keymap node content
+  let searchScope = content
+  const keymapMatch = content.match(/keymap\s*\{([\s\S]*?)\};/);
+  if (keymapMatch) {
+    searchScope = keymapMatch[1]
+  }
+
+  const layerRegex = /([\w-]+)\s*\{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;[\s\S]*?\};/g
+  let match
+  while ((match = layerRegex.exec(searchScope)) !== null) {
+    const name = match[1]
+    const bindingsText = match[2]
+    
+    const cleanBindings = stripComments(bindingsText).replace(/\s+/g, ' ').trim()
+    const tokens = cleanBindings.split(' ').filter(t => t.length > 0)
+    
+    const bindingStrings = []
+    let current = []
+    for (const token of tokens) {
+      if (token.startsWith('&') && current.length > 0) {
+        bindingStrings.push(current.join(' '))
+        current = [token]
+      } else {
+        current.push(token)
+      }
+    }
+    if (current.length > 0) {
+      bindingStrings.push(current.join(' '))
+    }
+
+    if (bindingStrings.length > 0) {
+      layers.push(bindingStrings)
+      layerNames.push(name.replace(/_layer$/, '').replace(/_/g, ' '))
+    }
+  }
+
+  return {
+    layers,
+    layer_names: layerNames
+  }
+}
+
 function generateKeymap(layout, keymap, template, behavioursByBind) {
   const encoded = encodeKeymap(keymap)
   return {
@@ -200,5 +250,6 @@ module.exports = {
   generateKeymapJSON,
   parseKeyBinding,
   parseKeymap,
+  parseKeymapDts,
   generateKeymap
 }
