@@ -8,7 +8,7 @@ export interface EnumParam {
 
 export type Param = ParamType | EnumParam;
 
-export type Value = string | number;
+export type Value = string | number | undefined;
 
 export interface Source {
   params?: Param[];

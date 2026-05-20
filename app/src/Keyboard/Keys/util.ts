@@ -54,9 +54,9 @@ export function createPromptMessage(param: any): string {
   );
 }
 
-export function hydrateTree(value: string, params: any[], sources: any): KeyNode {
+export function hydrateTree(value: string | undefined, params: any[], sources: any): KeyNode {
   const bind = value;
-  const behaviour = get(sources.behaviours, bind);
+  const behaviour = get(sources.behaviours, bind || '');
   const behaviourParams = getBehaviourParams(params, behaviour);
   const commands = keyBy(behaviour ? behaviour.commands : [], 'code');
 
