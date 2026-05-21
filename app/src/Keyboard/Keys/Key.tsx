@@ -107,8 +107,9 @@ function Key(props: KeyProps) {
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX - rect.left;
-    const isLeft = x < rect.width * 2 / 5;
-    const isRight = x > rect.width * 3 / 5;
+    const currentParams = normalized.params || [];
+    const isLeft = currentParams.length > 1 ? x < rect.width / 2 : x < rect.width * 2 / 5;
+    const isRight = currentParams.length > 1 ? x >= rect.width / 2 : x > rect.width * 3 / 5;
 
     if (isLeft) setDragSide('left');
     else if (isRight) setDragSide('right');
@@ -129,17 +130,17 @@ function Key(props: KeyProps) {
       const payload = JSON.parse(data);
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const x = event.clientX - rect.left;
-      const isLeft = x < rect.width * 2 / 5;
-      const isRight = x > rect.width * 3 / 5;
-
       const currentParams = normalized.params || [];
+      const isLeft = currentParams.length > 1 ? x < rect.width / 2 : x < rect.width * 2 / 5;
+      const isRight = currentParams.length > 1 ? x >= rect.width / 2 : x > rect.width * 3 / 5;
+
       const droppedParam = payload.params?.[0];
 
-      // If we dropped on the left or right of a multi-param behavior
-      if (currentParams.length > 1 && (isLeft || isRight)) {
+      // If we dropped on the left or right of a multi-param behavior and have a parameter to drop
+      if (currentParams.length > 1 && (isLeft || isRight) && droppedParam) {
         const updated = cloneDeep(normalized);
         const paramIndex = isLeft ? 0 : 1;
-        if (droppedParam && updated.params) {
+        if (updated.params) {
           updated.params[paramIndex] = droppedParam;
         }
         onUpdate(pick(updated, ['value', 'params']));
