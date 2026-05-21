@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useContext } from 'react';
+import React, { useMemo, useState, useContext, useEffect } from 'react';
 import KeyboardLayout from './KeyboardLayout';
 import { JIS_LAYOUT, US_LAYOUT, PaletteLayoutItem } from '../data/standard-layouts';
 import { KeyBinding } from '../shared/keymapUtils';
@@ -16,6 +16,10 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   const { sources } = useContext(SearchContext);
   const [tab, setTab] = useState<PaletteTab>('keys');
   const [layoutType, setLayoutType] = useState(initialLayoutType);
+
+  useEffect(() => {
+    setLayoutType(initialLayoutType);
+  }, [initialLayoutType]);
 
   const { layout, bindings } = useMemo(() => {
     if (tab === 'keys') {
@@ -105,11 +109,18 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
       <div className={styles['segmented-control-wrapper']}>
         <div className={styles['segmented-control']}>
           <button 
-            onClick={() => setTab('keys')} 
-            className={`${styles['segmented-control-button']} ${tab === 'keys' ? styles.active : ''}`}
+            onClick={() => { setTab('keys'); setLayoutType('US'); }} 
+            className={`${styles['segmented-control-button']} ${(tab === 'keys' && layoutType === 'US') ? styles.active : ''}`}
           >
             <Icon name="keyboard" />
-            Keys
+            US Keys
+          </button>
+          <button 
+            onClick={() => { setTab('keys'); setLayoutType('JP'); }} 
+            className={`${styles['segmented-control-button']} ${(tab === 'keys' && layoutType === 'JP') ? styles.active : ''}`}
+          >
+            <Icon name="keyboard" />
+            JIS Keys
           </button>
           <button 
             onClick={() => setTab('layers')} 
@@ -127,25 +138,6 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
           </button>
         </div>
       </div>
-
-      {tab === 'keys' && (
-        <div className={styles['layout-toggle-control-wrapper']}>
-          <div className={styles['layout-toggle-control']}>
-            <button 
-              onClick={() => setLayoutType('US')} 
-              className={`${styles['layout-toggle-button']} ${layoutType === 'US' ? styles.active : ''}`}
-            >
-              US
-            </button>
-            <button 
-              onClick={() => setLayoutType('JP')} 
-              className={`${styles['layout-toggle-button']} ${layoutType === 'JP' ? styles.active : ''}`}
-            >
-              JIS
-            </button>
-          </div>
-        </div>
-      )}
 
       <div style={{ 
         width: `${width}px`, 
