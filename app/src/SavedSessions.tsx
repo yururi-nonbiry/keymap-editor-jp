@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Modal from './Common/Modal';
+import DialogBox from './Common/DialogBox';
 
 interface SavedSessionData {
   id: string;
@@ -25,6 +27,7 @@ interface SavedSessionsProps {
 function SavedSessions({ currentSession, onLoadSession }: SavedSessionsProps) {
   const [sessions, setSessions] = useState<SavedSessionData[]>([]);
   const [sessionName, setSessionName] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Load saved sessions from localStorage on mount
   useEffect(() => {
@@ -104,69 +107,101 @@ function SavedSessions({ currentSession, onLoadSession }: SavedSessionsProps) {
   const hasLoadedKeyboard = !!currentSession.layout && (!!currentSession.keymap || !!currentSession.editingKeymap);
 
   return (
-    <div className="saved-sessions-container">
-      <div className="saved-sessions-header">
-        <i className="fas fa-history icon-title"></i>
-        <span>セーブデータ管理 (Snapshots)</span>
-      </div>
+    <>
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="btn-saved-sessions-toggle"
+        title="セーブデータの保存と読み込み"
+      >
+        <i className="fas fa-history"></i> セーブデータ管理 (Snapshots)
+      </button>
 
-      <div className="saved-sessions-save-form">
-        <input
-          type="text"
-          placeholder="セーブデータ名を入力..."
-          value={sessionName}
-          onChange={(e) => setSessionName(e.target.value)}
-          disabled={!hasLoadedKeyboard}
-          className="saved-sessions-input"
-        />
-        <button
-          onClick={handleSave}
-          disabled={!hasLoadedKeyboard}
-          className="btn-save-session"
-          title="現在の状態をブラウザに保存"
-        >
-          <i className="fas fa-save"></i> 保存
-        </button>
-      </div>
-
-      {sessions.length === 0 ? (
-        <div className="saved-sessions-empty">
-          保存されたセーブデータはありません。
-        </div>
-      ) : (
-        <div className="saved-sessions-list">
-          {sessions.map((session) => (
-            <div key={session.id} className="saved-sessions-item">
-              <div className="saved-sessions-item-info">
-                <div className="saved-sessions-item-name" title={session.name}>
-                  {session.name}
-                </div>
-                <div className="saved-sessions-item-meta">
-                  <span className="source-tag">{getSourceLabel(session)}</span>
-                  <span className="time-tag">{formatDate(session.timestamp)}</span>
-                </div>
+      {isModalOpen && (
+        <Modal>
+          <DialogBox onDismiss={() => setIsModalOpen(false)} dismissText="">
+            <div className="saved-sessions-modal-content">
+              <div className="saved-sessions-header" style={{ marginBottom: '10px' }}>
+                <i className="fas fa-history icon-title"></i>
+                <span style={{ fontWeight: 600, color: '#2c3e50', fontSize: '1.1rem' }}>
+                  セーブデータ管理 (Snapshots)
+                </span>
               </div>
-              <div className="saved-sessions-item-actions">
+
+              <div className="saved-sessions-save-form" style={{ display: 'flex', gap: '6px', marginBottom: '15px' }}>
+                <input
+                  type="text"
+                  placeholder="セーブデータ名を入力..."
+                  value={sessionName}
+                  onChange={(e) => setSessionName(e.target.value)}
+                  disabled={!hasLoadedKeyboard}
+                  className="saved-sessions-input"
+                  style={{ flex: 1 }}
+                />
                 <button
-                  onClick={() => onLoadSession(session)}
-                  className="btn-load-session"
-                  title="このデータを読み込む"
+                  onClick={handleSave}
+                  disabled={!hasLoadedKeyboard}
+                  className="btn-save-session"
+                  title="現在の状態をブラウザに保存"
                 >
-                  <i className="fas fa-folder-open"></i> 読込
+                  <i className="fas fa-save"></i> 保存
                 </button>
-                <button
-                  onClick={(e) => handleDelete(session.id, e)}
-                  className="btn-delete-session"
-                  title="削除"
+              </div>
+
+              {sessions.length === 0 ? (
+                <div className="saved-sessions-empty">
+                  保存されたセーブデータはありません。
+                </div>
+              ) : (
+                <div className="saved-sessions-list">
+                  {sessions.map((session) => (
+                    <div key={session.id} className="saved-sessions-item">
+                      <div className="saved-sessions-item-info">
+                        <div className="saved-sessions-item-name" title={session.name}>
+                          {session.name}
+                        </div>
+                        <div className="saved-sessions-item-meta">
+                          <span className="source-tag">{getSourceLabel(session)}</span>
+                          <span className="time-tag">{formatDate(session.timestamp)}</span>
+                        </div>
+                      </div>
+                      <div className="saved-sessions-item-actions">
+                        <button
+                          onClick={() => {
+                            onLoadSession(session);
+                            setIsModalOpen(false);
+                          }}
+                          className="btn-load-session"
+                          title="このデータを読み込む"
+                        >
+                          <i className="fas fa-folder-open"></i> 読込
+                        </button>
+                        <button
+                          onClick={(e) => handleDelete(session.id, e)}
+                          className="btn-delete-session"
+                          title="削除"
+                        >
+                          <i className="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="modal-actions" style={{ marginTop: '15px' }}>
+                <button 
+                  type="button" 
+                  className="btn-modal-cancel" 
+                  onClick={() => setIsModalOpen(false)}
                 >
-                  <i className="fas fa-trash-alt"></i>
+                  閉じる
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+          </DialogBox>
+        </Modal>
       )}
-    </div>
+    </>
   );
 }
 
