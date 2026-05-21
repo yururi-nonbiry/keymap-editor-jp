@@ -1,19 +1,40 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import Modal from '../Common/Modal';
+import DialogBox from '../Common/DialogBox';
 import ValidationErrors from './Github/ValidationErrors';
 import { parseKeymap, parseKeymapDts } from '../keymapGenerator';
 
 interface OfflinePickerProps {
   onSelect: (data: any) => void;
+  layoutFileName: string | null;
+  keymapFileName: string | null;
 }
 
-function OfflinePicker({ onSelect }: OfflinePickerProps) {
-  const [layoutData, setLayoutData] = useState<any[] | null>(null);
-  const [keymapData, setKeymapData] = useState<any | null>(null);
+function OfflinePicker({ onSelect, layoutFileName, keymapFileName }: OfflinePickerProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [localLayoutData, setLocalLayoutData] = useState<any[] | null>(null);
+  const [localKeymapData, setLocalKeymapData] = useState<any | null>(null);
+  const [localLayoutFileName, setLocalLayoutFileName] = useState<string | null>(null);
+  const [localKeymapFileName, setLocalKeymapFileName] = useState<string | null>(null);
   const [error, setError] = useState<{ name: string; errors: string[] } | null>(null);
+
+  const layoutInputRef = useRef<HTMLInputElement>(null);
+  const keymapInputRef = useRef<HTMLInputElement>(null);
+
+  const handleOpenModal = useCallback(() => {
+    // Reset local selection when opening modal, or keep the loaded file names
+    setLocalLayoutData(null);
+    setLocalKeymapData(null);
+    setLocalLayoutFileName(null);
+    setLocalKeymapFileName(null);
+    setError(null);
+    setIsModalOpen(true);
+  }, []);
 
   const handleLayoutChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLocalLayoutFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event: ProgressEvent<FileReader>) => {
       try {
@@ -33,19 +54,21 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
           throw new Error('Invalid layout JSON. Must define a "layouts" object or be a layouts array.');
         }
 
-        setLayoutData(layout);
+        setLocalLayoutData(layout);
         setError(null);
       } catch (err: any) {
         setError({ name: 'Layout File Error', errors: [err.message] });
-        setLayoutData(null);
+        setLocalLayoutData(null);
+        setLocalLayoutFileName(null);
       }
     };
     reader.readAsText(file);
-  }, [setLayoutData, setError]);
+  }, [setLocalLayoutData, setLocalLayoutFileName, setError]);
 
   const handleKeymapChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLocalKeymapFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event: ProgressEvent<FileReader>) => {
       try {
@@ -62,61 +85,139 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
         }
 
         const parsed = parseKeymap(json);
-        setKeymapData(parsed);
+        setLocalKeymapData(parsed);
         setError(null);
       } catch (err: any) {
         setError({ name: 'Keymap File Error', errors: [err.message] });
-        setKeymapData(null);
+        setLocalKeymapData(null);
+        setLocalKeymapFileName(null);
       }
     };
     reader.readAsText(file);
-  }, [setKeymapData, setError]);
+  }, [setLocalKeymapData, setLocalKeymapFileName, setError]);
 
   const handleLoad = useCallback(() => {
-    if (layoutData && keymapData) {
+    if (localLayoutData && localKeymapData && localLayoutFileName && localKeymapFileName) {
       onSelect({
-        layout: layoutData,
-        keymap: keymapData,
-        source: 'upload'
+        layout: localLayoutData,
+        keymap: localKeymapData,
+        source: 'upload',
+        layoutFileName: localLayoutFileName,
+        keymapFileName: localKeymapFileName
       });
+      setIsModalOpen(false);
     }
-  }, [layoutData, keymapData, onSelect]);
+  }, [localLayoutData, localKeymapData, localLayoutFileName, localKeymapFileName, onSelect]);
 
   return (
-    <div className="offline-picker" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-        <label style={{ fontSize: '0.8em', whiteSpace: 'nowrap' }}>Layout (info.json):</label>
-        <input type="file" accept=".json" onChange={handleLayoutChange} style={{ fontSize: '0.8em', width: '150px' }} />
+    <div className="offline-picker" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85em' }}>
+        <span style={{ color: '#555', fontWeight: 550 }}>Layout (info.json):</span>
+        <span 
+          onClick={handleOpenModal}
+          className={`file-status-pill ${layoutFileName ? 'selected' : 'unselected'}`}
+        >
+          {layoutFileName || '選択されていません'}
+        </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-        <label style={{ fontSize: '0.8em', whiteSpace: 'nowrap' }}>Keymap (.json/.keymap):</label>
-        <input type="file" accept=".json,.keymap" onChange={handleKeymapChange} style={{ fontSize: '0.8em', width: '150px' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85em' }}>
+        <span style={{ color: '#555', fontWeight: 550 }}>Keymap (.json/.keymap):</span>
+        <span 
+          onClick={handleOpenModal}
+          className={`file-status-pill ${keymapFileName ? 'selected' : 'unselected'}`}
+        >
+          {keymapFileName || '選択されていません'}
+        </span>
       </div>
-
-      {error && (
-        <ValidationErrors
-          title={error.name}
-          errors={error.errors}
-          onDismiss={() => setError(null)}
-        />
-      )}
 
       <button
-        disabled={!layoutData || !keymapData}
-        onClick={handleLoad}
-        style={{
-          padding: '4px 8px',
-          backgroundColor: layoutData && keymapData ? '#007bff' : '#ccc',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: layoutData && keymapData ? 'pointer' : 'not-allowed',
-          fontSize: '0.8em'
-        }}
+        onClick={handleOpenModal}
+        className="btn-select-files"
       >
-        Load
+        <i className="fas fa-file-upload" /> ファイル選択
       </button>
+
+      {isModalOpen && (
+        <Modal>
+          <DialogBox onDismiss={() => setIsModalOpen(false)} dismissText="">
+            <h2 style={{ margin: '0 0 10px 0', fontSize: '1.4em', color: '#2c3e50', textAlign: 'center' }}>
+              ファイル選択 / Select Files
+            </h2>
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.9em', color: '#7f8c8d', textAlign: 'center' }}>
+              Upload layout and keymap configuration files to initialize the editor.
+            </p>
+
+            <div className="modal-file-row">
+              <label>Layout (info.json):</label>
+              <button 
+                type="button" 
+                className="modal-file-button" 
+                onClick={() => layoutInputRef.current?.click()}
+              >
+                ファイルを選択
+              </button>
+              <span className={`modal-file-name ${localLayoutFileName ? 'selected' : ''}`}>
+                {localLayoutFileName || '選択されていません'}
+              </span>
+              <input 
+                ref={layoutInputRef}
+                type="file" 
+                accept=".json" 
+                onChange={handleLayoutChange} 
+                style={{ display: 'none' }} 
+              />
+            </div>
+
+            <div className="modal-file-row">
+              <label>Keymap (.json/.keymap):</label>
+              <button 
+                type="button" 
+                className="modal-file-button" 
+                onClick={() => keymapInputRef.current?.click()}
+              >
+                ファイルを選択
+              </button>
+              <span className={`modal-file-name ${localKeymapFileName ? 'selected' : ''}`}>
+                {localKeymapFileName || '選択されていません'}
+              </span>
+              <input 
+                ref={keymapInputRef}
+                type="file" 
+                accept=".json,.keymap" 
+                onChange={handleKeymapChange} 
+                style={{ display: 'none' }} 
+              />
+            </div>
+
+            {error && (
+              <ValidationErrors
+                title={error.name}
+                errors={error.errors}
+                onDismiss={() => setError(null)}
+              />
+            )}
+
+            <div className="modal-actions">
+              <button 
+                type="button" 
+                className="btn-modal-cancel" 
+                onClick={() => setIsModalOpen(false)}
+              >
+                キャンセル
+              </button>
+              <button 
+                type="button" 
+                className="btn-modal-load" 
+                disabled={!localLayoutData || !localKeymapData}
+                onClick={handleLoad}
+              >
+                Load
+              </button>
+            </div>
+          </DialogBox>
+        </Modal>
+      )}
     </div>
   );
 }

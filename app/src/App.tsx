@@ -30,6 +30,8 @@ interface Session {
   layout: any[] | null;
   keymap: Keymap | null;
   editingKeymap: Keymap | null;
+  layoutFileName?: string | null;
+  keymapFileName?: string | null;
 }
 
 function App() {
@@ -53,6 +55,8 @@ function App() {
   const [layout, setLayout] = useState<any[] | null>(savedSession?.layout || null);
   const [keymap, setKeymap] = useState<Keymap | null>(savedSession?.keymap || null);
   const [editingKeymap, setEditingKeymap] = useState<Keymap | null>(savedSession?.editingKeymap || null);
+  const [layoutFileName, setLayoutFileName] = useState<string | null>(savedSession?.layoutFileName || null);
+  const [keymapFileName, setKeymapFileName] = useState<string | null>(savedSession?.keymapFileName || null);
   const [saving, setSaving] = useState(false);
   const [keyboardLayout, setKeyboardLayout] = useState(localStorage.getItem('keyboardLayout') || 'US');
 
@@ -64,13 +68,15 @@ function App() {
         sourceOther,
         layout,
         keymap,
-        editingKeymap
+        editingKeymap,
+        layoutFileName,
+        keymapFileName
       };
       localStorage.setItem('keymap-editor:last-session', JSON.stringify(session));
     } else {
       localStorage.removeItem('keymap-editor:last-session');
     }
-  }, [source, sourceOther, layout, keymap, editingKeymap]);
+  }, [source, sourceOther, layout, keymap, editingKeymap, layoutFileName, keymapFileName]);
 
   const handleLayoutChange = useCallback((newLayout: string) => {
     setKeyboardLayout(newLayout);
@@ -150,21 +156,32 @@ function App() {
       setLayout(null);
       setKeymap(null);
       setEditingKeymap(null);
+      setLayoutFileName(null);
+      setKeymapFileName(null);
       return;
     }
-    const { source, layout: selectedLayout, keymap: selectedKeymap, ...other } = event;
+    const { source, layout: selectedLayout, keymap: selectedKeymap, layoutFileName, keymapFileName, ...other } = event;
 
     setSource(source);
     setSourceOther(other);
     setLayout(selectedLayout);
     setKeymap(selectedKeymap);
     setEditingKeymap(null);
+    if (source === 'upload') {
+      setLayoutFileName(layoutFileName || null);
+      setKeymapFileName(keymapFileName || null);
+    } else {
+      setLayoutFileName(null);
+      setKeymapFileName(null);
+    }
   }, [
     setSource,
     setSourceOther,
     setLayout,
     setKeymap,
-    setEditingKeymap
+    setEditingKeymap,
+    setLayoutFileName,
+    setKeymapFileName
   ]);
 
   const handleLoadSession = useCallback((session: Session) => {
@@ -173,7 +190,9 @@ function App() {
     setLayout(session.layout);
     setKeymap(session.keymap);
     setEditingKeymap(session.editingKeymap);
-  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap]);
+    setLayoutFileName(session.layoutFileName || null);
+    setKeymapFileName(session.keymapFileName || null);
+  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap, setLayoutFileName, setKeymapFileName]);
 
   const initialize = useCallback(async () => {
     const [keycodes, behaviours] = await Promise.all([
@@ -212,7 +231,12 @@ function App() {
           zIndex: 1000
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <KeyboardPicker onSelect={handleKeyboardSelected} hasKeyboardLoaded={hasKeyboardLoaded} />
+            <KeyboardPicker
+              onSelect={handleKeyboardSelected}
+              hasKeyboardLoaded={hasKeyboardLoaded}
+              layoutFileName={layoutFileName}
+              keymapFileName={keymapFileName}
+            />
             <Selector
               id="keyboard-layout"
               label="Layout Type"

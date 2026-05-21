@@ -295,4 +295,157 @@ html, body {
 .btn-delete-session:hover {
   background-color: rgba(231, 76, 60, 0.1);
   color: #c0392b;
-}
+}
+
+/* File Upload Status Pills & Modal Styles */
+.file-status-pill {
+  cursor: pointer;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.file-status-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.file-status-pill.unselected {
+  background-color: #fdf2f2;
+  color: #de350b;
+  border: 1px solid #ffbdad;
+}
+
+.file-status-pill.unselected:hover {
+  background-color: #fde8e8;
+}
+
+.file-status-pill.selected {
+  background-color: #e3fcef;
+  color: #006644;
+  border: 1px solid #abf5d1;
+}
+
+.file-status-pill.selected:hover {
+  background-color: #d2f7e4;
+}
+
+.btn-select-files {
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-select-files:hover {
+  background-color: #0747a6;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.btn-select-files:active {
+  transform: translateY(0);
+}
+
+.modal-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.modal-file-row label {
+  width: 180px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9em;
+}
+
+.modal-file-button {
+  padding: 6px 12px;
+  background-color: #f4f5f7;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 500;
+  color: #344563;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.modal-file-button:hover {
+  background-color: #ebecf0;
+}
+
+.modal-file-name {
+  font-size: 0.85em;
+  color: #5e6c84;
+  font-style: italic;
+  word-break: break-all;
+}
+
+.modal-file-name.selected {
+  color: #006644;
+  font-style: normal;
+  font-weight: 550;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+  border-top: 1px solid #dfe1e6;
+  padding-top: 15px;
+}
+
+.btn-modal-cancel {
+  padding: 8px 16px;
+  background-color: #f4f5f7;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #344563;
+  transition: background-color 0.2s ease;
+}
+
+.btn-modal-cancel:hover {
+  background-color: #ebecf0;
+}
+
+.btn-modal-load {
+  padding: 8px 20px;
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btn-modal-load:hover:not([disabled]) {
+  background-color: #0747a6;
+}
+
+.btn-modal-load:disabled {
+  background-color: #ebecf0;
+  color: #a5adba;
+  cursor: not-allowed;
+}
+

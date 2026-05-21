@@ -10,9 +10,11 @@ import OfflinePicker from './OfflinePicker';
 interface KeyboardPickerProps {
   onSelect: (event: any) => void;
   hasKeyboardLoaded?: boolean;
+  layoutFileName?: string | null;
+  keymapFileName?: string | null;
 }
 
-function KeyboardPicker({ onSelect, hasKeyboardLoaded }: KeyboardPickerProps) {
+function KeyboardPicker({ onSelect, hasKeyboardLoaded, layoutFileName, keymapFileName }: KeyboardPickerProps) {
   const [backendConnected, setBackendConnected] = useState(false);
   const [checkingBackend, setCheckingBackend] = useState(true);
   const [source, setSource] = useState<string | null>(null);
@@ -133,7 +135,11 @@ function KeyboardPicker({ onSelect, hasKeyboardLoaded }: KeyboardPickerProps) {
           )}
 
           {source === 'upload' && (
-            <OfflinePicker onSelect={handleKeyboardSelected} />
+            <OfflinePicker
+              onSelect={handleKeyboardSelected}
+              layoutFileName={layoutFileName || null}
+              keymapFileName={keymapFileName || null}
+            />
           )}
         </>
       )}
