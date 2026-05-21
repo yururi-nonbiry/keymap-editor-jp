@@ -3,11 +3,13 @@ import { createContext } from "react";
 export interface DefinitionsContextType {
   keycodes: any;
   behaviours: any;
+  rawDefinitions?: any;
 }
 
 export const DefinitionsContext = createContext<DefinitionsContextType>({
   keycodes: { indexed: {} },
-  behaviours: { indexed: {} }
+  behaviours: { indexed: {} },
+  rawDefinitions: null
 });
 
 export interface SearchContextType {

@@ -100,6 +100,14 @@ function App() {
     return definitions;
   }, [definitions, keyboardLayout]);
 
+  const contextValue = useMemo(() => {
+    if (!translatedDefinitions) return { keycodes: { indexed: {} }, behaviours: { indexed: {} } };
+    return {
+      ...translatedDefinitions,
+      rawDefinitions: definitions
+    };
+  }, [translatedDefinitions, definitions]);
+
   function handleCompile() {
     fetch(`${config.apiBaseUrl}/keymap`, {
       method: 'POST',
@@ -390,7 +398,7 @@ function App() {
             )}
           </div>
         </div>
-        <DefinitionsContext.Provider value={translatedDefinitions}>
+        <DefinitionsContext.Provider value={contextValue}>
           {layout && (editingKeymap || keymap) && (
             <Keyboard
               layout={layout}

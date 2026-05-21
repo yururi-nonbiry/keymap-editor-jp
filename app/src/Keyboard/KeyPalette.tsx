@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useContext, useEffect } from 'react';
+import React, { useMemo, useState, useContext, useEffect, useCallback } from 'react';
 import KeyboardLayout from './KeyboardLayout';
 import { JIS_LAYOUT, US_LAYOUT, PaletteLayoutItem } from '../data/standard-layouts';
 import { KeyBinding, parseKeyBinding } from '../shared/keymapUtils';
-import { SearchContext } from '../providers';
+import { SearchContext, DefinitionsContext } from '../providers';
+import { getJpDefinitions } from '../jpLayout';
 import Icon from '../Common/Icon';
 import styles from './styles.module.css';
 
@@ -13,10 +14,54 @@ interface KeyPaletteProps {
 type PaletteTab = 'keys' | 'layers' | 'behaviors' | 'bluetooth';
 
 function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
-  const { sources } = useContext(SearchContext);
+  const parentSearchContext = useContext(SearchContext);
+  const { rawDefinitions, behaviours } = useContext(DefinitionsContext);
   const [tab, setTab] = useState<PaletteTab>('keys');
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const isJp = initialLayoutType === 'JP';
+
+  const localKeycodes = useMemo(() => {
+    if (!rawDefinitions) return [];
+    return layoutType === 'JP' ? getJpDefinitions(rawDefinitions).keycodes : rawDefinitions.keycodes;
+  }, [rawDefinitions, layoutType]);
+
+  const sources = useMemo(() => {
+    if (!rawDefinitions) return parentSearchContext.sources;
+    const modMap: Record<string, any> = {};
+    localKeycodes.forEach((kc: any) => {
+      if (kc.isModifier) {
+        modMap[kc.code] = kc;
+      }
+    });
+    return {
+      kc: localKeycodes.indexed,
+      code: localKeycodes.indexed,
+      mod: modMap,
+      behaviours: behaviours.indexed,
+      layer: parentSearchContext.sources.layer
+    };
+  }, [localKeycodes, behaviours, parentSearchContext.sources, rawDefinitions]);
+
+  const searchTargets = useMemo(() => {
+    return {
+      behaviour: Object.values(behaviours.indexed || {}),
+      layer: Object.values(parentSearchContext.sources.layer || {}),
+      mod: localKeycodes.filter((kc: any) => kc.isModifier),
+      code: localKeycodes
+    };
+  }, [behaviours, localKeycodes, parentSearchContext.sources.layer]);
+
+  const getSearchTargets = useCallback((param: any, behaviourName: string) => {
+    if (param.enum) {
+      return param.enum.map((v: string) => ({ code: v }));
+    }
+
+    if (param === 'command') {
+      return sources.behaviours?.[behaviourName]?.commands || [];
+    }
+
+    return (searchTargets as any)[param] || [];
+  }, [searchTargets, sources]);
 
   useEffect(() => {
     setLayoutType(initialLayoutType);
@@ -187,11 +232,13 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
         transform: 'scale(0.7)',
         transformOrigin: 'top center'
       }}>
-        <KeyboardLayout
-          layout={layout}
-          bindings={bindings}
-          onUpdate={handleUpdate}
-        />
+        <SearchContext.Provider value={{ getSearchTargets, sources, layoutType }}>
+          <KeyboardLayout
+            layout={layout}
+            bindings={bindings}
+            onUpdate={handleUpdate}
+          />
+        </SearchContext.Provider>
       </div>
     </div>
   );
