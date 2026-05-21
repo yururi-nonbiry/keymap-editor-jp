@@ -18,12 +18,12 @@ interface KeyValueProps {
   isPalette?: boolean;
 }
 
-interface SymbolPair {
+export interface SymbolPair {
   normal: string;
   shifted: string;
 }
 
-const US_SYMBOL_MAP: Record<string, SymbolPair> = {
+export const US_SYMBOL_MAP: Record<string, SymbolPair> = {
   GRAVE: { normal: "`", shifted: "~" },
   NUMBER_1: { normal: "1", shifted: "!" },
   NUMBER_2: { normal: "2", shifted: "@" },
@@ -47,7 +47,7 @@ const US_SYMBOL_MAP: Record<string, SymbolPair> = {
   SLASH: { normal: "/", shifted: "?" },
 };
 
-const JP_SYMBOL_MAP: Record<string, SymbolPair> = {
+export const JP_SYMBOL_MAP: Record<string, SymbolPair> = {
   NUMBER_1: { normal: "1", shifted: "!" },
   NUMBER_2: { normal: "2", shifted: "\"" },
   NUMBER_3: { normal: "3", shifted: "#" },
@@ -70,6 +70,7 @@ const JP_SYMBOL_MAP: Record<string, SymbolPair> = {
   PERIOD: { normal: ".", shifted: ">" },
   SLASH: { normal: "/", shifted: "?" },
 };
+
 
 function KeyValue(props: KeyValueProps) {
   const { param, index, value, source, onSelect, isPalette } = props;

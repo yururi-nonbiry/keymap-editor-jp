@@ -184,3 +184,30 @@
 .key:hover .shifted {
   color: #eee;
 }
+
+.shiftModifierParam {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shiftedSymbol {
+  font-weight: bold;
+  color: #333;
+  margin-right: 4px;
+}
+
+.key:hover .shiftedSymbol {
+  color: white;
+}
+
+.shiftedParentheses {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.8;
+}
+
+.paren {
+  opacity: 0.4;
+  font-weight: bold;
+}
