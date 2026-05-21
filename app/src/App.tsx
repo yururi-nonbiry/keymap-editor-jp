@@ -19,7 +19,7 @@ import github from './Pickers/Github/api';
 import Selector from './Common/Selector';
 import { getJpDefinitions } from './jpLayout';
 // @ts-ignore
-import SavedSessions from './SavedSessions';
+import FileAndSessionModal from './Pickers/FileAndSessionModal';
 import { generateKeymap } from './keymapGenerator';
 import { Keymap } from './shared/keymapUtils';
 import pkg from '../package.json';
@@ -67,6 +67,7 @@ function App() {
   const [keymapFileName, setKeymapFileName] = useState<string | null>(savedSession?.keymapFileName || null);
   const [saving, setSaving] = useState(false);
   const [keyboardLayout, setKeyboardLayout] = useState(localStorage.getItem('keyboardLayout') || 'US');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Autosave session to localStorage
   useEffect(() => {
@@ -320,6 +321,7 @@ function App() {
               hasKeyboardLoaded={hasKeyboardLoaded}
               layoutFileName={layoutFileName}
               keymapFileName={keymapFileName}
+              onOpenFileModal={() => setIsModalOpen(true)}
             />
             <Selector
               id="keyboard-layout"
@@ -331,10 +333,13 @@ function App() {
               ]}
               onUpdate={handleLayoutChange}
             />
-            <SavedSessions
-              currentSession={{ source, sourceOther, layout, keymap, editingKeymap }}
-              onLoadSession={handleLoadSession}
-            />
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="btn-saved-sessions-toggle"
+              title="セーブデータの保存と読み込み"
+            >
+              <i className="fas fa-history"></i> セーブデータ管理 (Snapshots)
+            </button>
             {hasKeyboardLoaded && (
               <div className="undo-redo-group">
                 <button
@@ -395,6 +400,15 @@ function App() {
             />
           )}
         </DefinitionsContext.Provider>
+        <FileAndSessionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          layoutFileName={layoutFileName}
+          keymapFileName={keymapFileName}
+          onSelectFiles={handleKeyboardSelected}
+          currentSession={{ source, sourceOther, layout, keymap, editingKeymap }}
+          onLoadSession={handleLoadSession}
+        />
       </Loader>
       <div className="footer">
         <GitHubLink className="github-link" />

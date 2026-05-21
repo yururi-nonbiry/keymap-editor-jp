@@ -5,16 +5,16 @@ import * as config from '../config';
 import { healthcheck } from '../api';
 import Selector from "../Common/Selector";
 import GithubPicker from './Github/Picker';
-import OfflinePicker from './OfflinePicker';
 
 interface KeyboardPickerProps {
   onSelect: (event: any) => void;
   hasKeyboardLoaded?: boolean;
   layoutFileName?: string | null;
   keymapFileName?: string | null;
+  onOpenFileModal?: () => void;
 }
 
-function KeyboardPicker({ onSelect, hasKeyboardLoaded, layoutFileName, keymapFileName }: KeyboardPickerProps) {
+function KeyboardPicker({ onSelect, hasKeyboardLoaded, layoutFileName, keymapFileName, onOpenFileModal }: KeyboardPickerProps) {
   const [backendConnected, setBackendConnected] = useState(false);
   const [checkingBackend, setCheckingBackend] = useState(true);
   const [source, setSource] = useState<string | null>(null);
@@ -135,11 +135,14 @@ function KeyboardPicker({ onSelect, hasKeyboardLoaded, layoutFileName, keymapFil
           )}
 
           {source === 'upload' && (
-            <OfflinePicker
-              onSelect={handleKeyboardSelected}
-              layoutFileName={layoutFileName || null}
-              keymapFileName={keymapFileName || null}
-            />
+            <div className="offline-picker" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <button
+                onClick={onOpenFileModal}
+                className="btn-select-files"
+              >
+                <i className="fas fa-file-upload" /> ファイル選択
+              </button>
+            </div>
           )}
         </>
       )}
