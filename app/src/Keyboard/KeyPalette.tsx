@@ -3,6 +3,8 @@ import KeyboardLayout from './KeyboardLayout';
 import { JIS_LAYOUT, US_LAYOUT, PaletteLayoutItem } from '../data/standard-layouts';
 import { KeyBinding } from '../shared/keymapUtils';
 import { SearchContext } from '../providers';
+import Icon from '../Common/Icon';
+import styles from './styles.module.css';
 
 interface KeyPaletteProps {
   layoutType: string;
@@ -94,19 +96,54 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   const height = boundingBox.y * 70;
 
   return (
-    <div className="key-palette" style={{ marginTop: '50px', borderTop: '1px solid #ccc', padding: '20px', overflowX: 'auto' }}>
-      <h3 style={{ textAlign: 'center' }}>Key Palette (Drag and drop keys to the keyboard above)</h3>
+    <div className={styles['key-palette-container']}>
+      <div className={styles['key-palette-header']}>
+        <h3 className={styles['key-palette-title']}>Key Palette</h3>
+        <p className={styles['key-palette-subtitle']}>Drag and drop keys to the keyboard above</p>
+      </div>
       
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={() => setTab('keys')} style={{ fontWeight: tab === 'keys' ? 'bold' : 'normal' }}>Keys</button>
-        <button onClick={() => setTab('layers')} style={{ fontWeight: tab === 'layers' ? 'bold' : 'normal' }}>Layers</button>
-        <button onClick={() => setTab('behaviors')} style={{ fontWeight: tab === 'behaviors' ? 'bold' : 'normal' }}>Behaviors</button>
+      <div className={styles['segmented-control-wrapper']}>
+        <div className={styles['segmented-control']}>
+          <button 
+            onClick={() => setTab('keys')} 
+            className={`${styles['segmented-control-button']} ${tab === 'keys' ? styles.active : ''}`}
+          >
+            <Icon name="keyboard" />
+            Keys
+          </button>
+          <button 
+            onClick={() => setTab('layers')} 
+            className={`${styles['segmented-control-button']} ${tab === 'layers' ? styles.active : ''}`}
+          >
+            <Icon name="layer-group" />
+            Layers
+          </button>
+          <button 
+            onClick={() => setTab('behaviors')} 
+            className={`${styles['segmented-control-button']} ${tab === 'behaviors' ? styles.active : ''}`}
+          >
+            <Icon name="sliders" />
+            Behaviors
+          </button>
+        </div>
       </div>
 
       {tab === 'keys' && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
-          <button onClick={() => setLayoutType('US')} style={{ fontWeight: layoutType === 'US' ? 'bold' : 'normal' }}>US</button>
-          <button onClick={() => setLayoutType('JP')} style={{ fontWeight: layoutType === 'JP' ? 'bold' : 'normal' }}>JIS</button>
+        <div className={styles['layout-toggle-control-wrapper']}>
+          <div className={styles['layout-toggle-control']}>
+            <button 
+              onClick={() => setLayoutType('US')} 
+              className={`${styles['layout-toggle-button']} ${layoutType === 'US' ? styles.active : ''}`}
+            >
+              US
+            </button>
+            <button 
+              onClick={() => setLayoutType('JP')} 
+              className={`${styles['layout-toggle-button']} ${layoutType === 'JP' ? styles.active : ''}`}
+            >
+              JIS
+            </button>
+          </div>
         </div>
       )}
 
