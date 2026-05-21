@@ -8,7 +8,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     left: '0',
     width: '100vw',
     height: '100vh',
-    backgroundColor: 'rgba(104, 123, 162, 0.39)',
+    backgroundColor: 'rgba(15, 23, 42, 0.5)', /* Modern dark translucent overlay */
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
     zIndex: 50,
     display: 'flex',
     justifyContent: 'center',

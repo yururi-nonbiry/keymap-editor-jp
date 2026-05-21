@@ -195,15 +195,27 @@ function ValuePicker (props: ValuePickerProps) {
 
   return (
     <div className={style.dialog} ref={dialogRef} onKeyDown={handleKeyDown} onClick={stopPropagation}>
-      <p>{prompt}</p>
-      {choices.length > searchThreshold && (
-        <input
-          ref={focusSearch}
-          type="text"
-          value={displayValue}
-          onChange={handleKeyPress}
-        />
-      )}
+      <div className={style.header}>
+        <div className={style.titleRow}>
+          <span className={style.icon}>🔍</span>
+          <p className={style.title}>{prompt}</p>
+          <button type="button" className={style.closeButton} onClick={onCancel} title={isJp ? '閉じる' : 'Close'}>
+            &times;
+          </button>
+        </div>
+        {choices.length > searchThreshold && (
+          <div className={style.searchWrapper}>
+            <input
+              ref={focusSearch}
+              type="text"
+              className={style.searchInput}
+              value={displayValue}
+              onChange={handleKeyPress}
+              placeholder={isJp ? '検索...' : 'Search...'}
+            />
+          </div>
+        )}
+      </div>
       <ul className={style.results} ref={listRef}>
         {results.map((result, i) => (
           <li
@@ -266,7 +278,7 @@ function ValuePicker (props: ValuePickerProps) {
       </ul>
       {choices.length > searchThreshold && (
         <div className={style['choices-counter']}>
-          {isJp ? `選択肢の総数: ${choices.length}.` : `Total choices: ${choices.length}.`}
+          <span>{isJp ? `選択肢の総数: ${choices.length}` : `Total choices: ${choices.length}`}</span>
           {enableShowAllButton && (
             <button onClick={() => setShowAll(true)}>{isJp ? 'すべて表示' : 'Show all'}</button>
           )}
