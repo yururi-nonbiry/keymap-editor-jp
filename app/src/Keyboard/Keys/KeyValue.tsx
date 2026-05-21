@@ -18,7 +18,8 @@ interface KeyValueProps {
 
 function KeyValue(props: KeyValueProps) {
   const { param, index, value, source, onSelect } = props;
-  const title = source && `(${source.code}) ${source.description}`;
+  const displayName = source?.displayName || source?.code;
+  const title = source && `(${displayName}) ${source.description}`;
   const text = source && (source?.symbol || source?.code);
   const icon = source?.faIcon && <Icon name={source.faIcon} />;
 

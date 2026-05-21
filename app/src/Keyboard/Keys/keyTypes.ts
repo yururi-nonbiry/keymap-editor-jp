@@ -16,6 +16,7 @@ export interface Source {
   description?: string;
   symbol?: string;
   faIcon?: string;
+  displayName?: string;
 }
 
 export interface KeyNode {

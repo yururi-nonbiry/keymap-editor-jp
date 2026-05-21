@@ -17,6 +17,7 @@ export interface NormalizedKeycode {
   symbol: string;
   params: string[];
   isModifier?: boolean;
+  displayName?: string;
 }
 
 export function loadBehaviours() {

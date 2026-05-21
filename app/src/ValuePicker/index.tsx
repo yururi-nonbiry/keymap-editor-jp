@@ -25,6 +25,7 @@ function scrollIntoViewIfNeeded (element: HTMLElement, alignToTop: boolean) {
 interface Choice {
   code: string;
   description?: string;
+  symbol?: string;
   search?: any;
   [key: string]: any;
 }
@@ -54,21 +55,40 @@ function ValuePicker (props: ValuePickerProps) {
   const [highlighted, setHighlighted] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
 
-  const results = useMemo(() => {
-    const options = { key: searchKey, limit: 30 }
-    const filtered = fuzzysort.go(query || '', choices, options)
+  const normalizedChoices = useMemo(() => {
+    return choices.map((choice): Choice => ({
+      ...choice,
+      displayName: choice.displayName || choice.code
+    }));
+  }, [choices]);
 
-    if (showAll || searchThreshold > choices.length) {
-      return choices
+  const actualSearchKey = (isJp && searchKey === 'code') ? 'displayName' : searchKey;
+
+  const results = useMemo(() => {
+    const options = { key: actualSearchKey, limit: 30 }
+    const filtered = fuzzysort.go(query || '', normalizedChoices, options)
+
+    if (showAll || searchThreshold > normalizedChoices.length) {
+      return normalizedChoices
     } else if (!query) {
-      return choices.slice(0, searchThreshold)
+      return normalizedChoices.slice(0, searchThreshold)
     }
 
     return filtered.map(result => ({
       ...result.obj,
       search: result
     }))
-  }, [query, choices, searchKey, showAll, searchThreshold])
+  }, [query, normalizedChoices, actualSearchKey, showAll, searchThreshold])
+
+  const displayValue = useMemo(() => {
+    if (query !== null) return query;
+    if (!value) return '';
+    const choice = normalizedChoices.find(c => c.code === value || c.displayName === value);
+    if (choice) {
+      return choice[actualSearchKey] || choice.code || String(value);
+    }
+    return String(value);
+  }, [query, value, normalizedChoices, actualSearchKey]);
 
   const enableShowAllButton = useMemo(() => {
     return (
@@ -175,7 +195,7 @@ function ValuePicker (props: ValuePickerProps) {
         <input
           ref={focusSearch}
           type="text"
-          value={query !== null ? query : (String(value || ''))}
+          value={displayValue}
           onChange={handleKeyPress}
         />
       )}
@@ -195,10 +215,10 @@ function ValuePicker (props: ValuePickerProps) {
               }} />
             ) : (
               <span>
-                {result[searchKey]}
+                {result[actualSearchKey]}
               </span>
             )}
-            {result.symbol && result.symbol !== result[searchKey] && (
+            {result.symbol && result.symbol !== result[actualSearchKey] && (
               <span className={style.symbol}>({result.symbol})</span>
             )}
             {result.description && (

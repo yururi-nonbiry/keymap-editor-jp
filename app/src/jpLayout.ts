@@ -4,6 +4,7 @@ import { NormalizedKeycode } from './keycodes';
 interface JpTranslation {
   symbol?: string;
   description?: string;
+  displayName?: string;
 }
 
 const jpKeycodeTranslations: Record<string, JpTranslation> = {
@@ -22,7 +23,7 @@ const jpKeycodeTranslations: Record<string, JpTranslation> = {
   // Symbols
   MINUS: { symbol: "-", description: "- and = [Equal]" },
   EQUAL: { symbol: "^", description: "^ [Caret] and ~ [Tilde]" },
-  LEFT_BRACKET: { symbol: "@", description: "@ [At Sign] and ` [Grave]" },
+  LEFT_BRACKET: { symbol: "@", description: "@ [At Sign] and ` [Grave]", displayName: "アットマーク" },
   RIGHT_BRACKET: { symbol: "[", description: "[ [Left Bracket] and { [Left Brace]" },
   BACKSLASH: { symbol: "]", description: "] [Right Bracket] and } [Right Brace]" },
   SEMICOLON: { symbol: ";", description: "; [Semicolon] and + [Plus]" },
@@ -68,7 +69,8 @@ export function getJpDefinitions(definitions: any): any {
       return {
         ...kc,
         symbol: jpMapping.symbol !== undefined ? jpMapping.symbol : kc.symbol,
-        description: jpMapping.description !== undefined ? jpMapping.description : kc.description
+        description: jpMapping.description !== undefined ? jpMapping.description : kc.description,
+        displayName: jpMapping.displayName !== undefined ? jpMapping.displayName : (kc as any).displayName
       };
     }
     return kc;
