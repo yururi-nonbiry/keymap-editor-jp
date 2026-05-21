@@ -197,6 +197,7 @@ function Key(props: KeyProps) {
   return (
     <div
       className={`${styles.key} ${dragSide === 'left' ? styles['highlight-left'] : ''} ${dragSide === 'right' ? styles['highlight-right'] : ''}`}
+      data-behaviour={value}
       data-label={label}
       data-u={size.u}
       data-h={size.h}

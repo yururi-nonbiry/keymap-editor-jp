@@ -89,3 +89,66 @@
   border-radius: 5px 0;
   opacity: 1;
 }
+
+/* Layout split for mod-tap and layer-tap behaviors */
+.key[data-behaviour="&mt"],
+.key[data-behaviour="&lt"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.key[data-behaviour="&mt"] .params[data-is-root="true"],
+.key[data-behaviour="&lt"] .params[data-is-root="true"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 90%;
+  width: 90%;
+  padding: 4px 0;
+  box-sizing: border-box;
+}
+
+/* Styling for top (hold) parameter of mod-tap / layer-tap */
+.key[data-behaviour="&mt"] .params[data-is-root="true"] > .param:first-child,
+.key[data-behaviour="&lt"] .params[data-is-root="true"] > .param:first-child {
+  font-size: 70%;
+  opacity: 0.65;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Styling for bottom (tap) parameter of mod-tap / layer-tap */
+.key[data-behaviour="&mt"] .params[data-is-root="true"] > .param:last-child,
+.key[data-behaviour="&lt"] .params[data-is-root="true"] > .param:last-child {
+  font-size: 110%;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text color behavior on key hover */
+.key:hover .params[data-is-root="true"] > .param:last-child {
+  color: white;
+}
+
+/* Modifier function parameter styling (hide parentheses for LS, LC, etc.) */
+.params[data-is-modifier-parent="true"]::before,
+.params[data-is-modifier-parent="true"]::after {
+  display: none !important;
+}
+
+/* Keep nested modifier parameters side-by-side */
+.params[data-is-modifier-parent="true"] {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px;
+}

@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import React from 'react';
 
-import { KeyIndex, Param, KeyNode } from './keyTypes';
+import { KeyIndex, Param, KeyNode, Value } from './keyTypes';
 import KeyValue from './KeyValue';
 import styles from './styles.module.css';
 
@@ -11,15 +11,21 @@ interface KeyParamlistProps {
   values: KeyNode[];
   onSelect: (event: any) => void;
   root?: boolean;
+  parentValue?: Value;
 }
 
 function KeyParamlist(props: KeyParamlistProps) {
-  const { index, params, values, onSelect, root } = props;
+  const { index, params, values, onSelect, root, parentValue } = props;
+  const parentValueStr = parentValue !== undefined ? String(parentValue) : undefined;
+  const isModifierParent = parentValueStr ? /^(L|R)(S|C|A|G)$/.test(parentValueStr) : false;
+
   return (
     <span
       className={styles.params}
       data-is-root={!!root}
       data-param-count={params.length}
+      data-parent-value={parentValue}
+      data-is-modifier-parent={isModifierParent}
     >
       {params.map((param, i) => (
         <span key={`param-${i}`} className={styles.param}>
@@ -36,6 +42,7 @@ function KeyParamlist(props: KeyParamlistProps) {
               params={get(values[i], 'source.params') || []}
               values={get(values[i], 'params') || []}
               onSelect={onSelect}
+              parentValue={get(values[i], 'value')}
             />
           ) : null}
         </span>
