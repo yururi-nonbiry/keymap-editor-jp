@@ -22,14 +22,14 @@ function OfflinePicker({ onSelect, layoutFileName, keymapFileName }: OfflinePick
   const keymapInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenModal = useCallback(() => {
-    // Reset local selection when opening modal, or keep the loaded file names
+    // Reset local selection when opening modal, but keep the currently loaded file names
     setLocalLayoutData(null);
     setLocalKeymapData(null);
-    setLocalLayoutFileName(null);
-    setLocalKeymapFileName(null);
+    setLocalLayoutFileName(layoutFileName);
+    setLocalKeymapFileName(keymapFileName);
     setError(null);
     setIsModalOpen(true);
-  }, []);
+  }, [layoutFileName, keymapFileName]);
 
   const handleLayoutChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,26 +111,6 @@ function OfflinePicker({ onSelect, layoutFileName, keymapFileName }: OfflinePick
 
   return (
     <div className="offline-picker" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85em' }}>
-        <span style={{ color: '#555', fontWeight: 550 }}>Layout (info.json):</span>
-        <span 
-          onClick={handleOpenModal}
-          className={`file-status-pill ${layoutFileName ? 'selected' : 'unselected'}`}
-        >
-          {layoutFileName || '選択されていません'}
-        </span>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85em' }}>
-        <span style={{ color: '#555', fontWeight: 550 }}>Keymap (.json/.keymap):</span>
-        <span 
-          onClick={handleOpenModal}
-          className={`file-status-pill ${keymapFileName ? 'selected' : 'unselected'}`}
-        >
-          {keymapFileName || '選択されていません'}
-        </span>
-      </div>
-
       <button
         onClick={handleOpenModal}
         className="btn-select-files"
