@@ -12,10 +12,11 @@ interface KeyParamlistProps {
   onSelect: (event: any) => void;
   root?: boolean;
   parentValue?: Value;
+  isPalette?: boolean;
 }
 
 function KeyParamlist(props: KeyParamlistProps) {
-  const { index, params, values, onSelect, root, parentValue } = props;
+  const { index, params, values, onSelect, root, parentValue, isPalette } = props;
   const parentValueStr = parentValue !== undefined ? String(parentValue) : undefined;
   const isModifierParent = parentValueStr ? /^(L|R)(S|C|A|G)$/.test(parentValueStr) : false;
 
@@ -35,6 +36,7 @@ function KeyParamlist(props: KeyParamlistProps) {
             value={get(values[i], 'value')}
             source={get(values[i], 'source')}
             onSelect={onSelect}
+            isPalette={isPalette}
           />
           {get(values[i], 'source.params.length', 0) > 0 ? (
             <KeyParamlist
@@ -43,6 +45,7 @@ function KeyParamlist(props: KeyParamlistProps) {
               values={get(values[i], 'params') || []}
               onSelect={onSelect}
               parentValue={get(values[i], 'value')}
+              isPalette={isPalette}
             />
           ) : null}
         </span>

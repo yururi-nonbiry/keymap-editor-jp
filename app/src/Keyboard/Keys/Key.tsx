@@ -30,6 +30,7 @@ interface KeyProps {
   value: Value;
   params: any[];
   onUpdate: (updated: any) => void;
+  isPalette?: boolean;
 }
 
 interface EditingState {
@@ -43,7 +44,7 @@ interface EditingState {
 function Key(props: KeyProps) {
   const { getSearchTargets, sources, layoutType } = useContext(SearchContext);
   const isJp = layoutType === 'JP';
-  const { position, rotation, size } = props;
+  const { position, rotation, size, isPalette } = props;
   const { label, value, params, onUpdate } = props;
   const [editing, setEditing] = useState<EditingState | null>(null);
   const [dragSide, setDragSide] = useState<'left' | 'right' | 'none'>('none');
@@ -229,6 +230,7 @@ function Key(props: KeyProps) {
       params={behaviourParams}
       values={normalized.params || []}
       onSelect={handleSelectCode}
+      isPalette={isPalette}
     />
     {editing && (
       <Modal>

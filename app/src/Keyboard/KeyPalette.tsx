@@ -237,6 +237,7 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
             layout={layout}
             bindings={bindings}
             onUpdate={handleUpdate}
+            isPalette={true}
           />
         </SearchContext.Provider>
       </div>

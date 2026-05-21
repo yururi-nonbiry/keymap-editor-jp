@@ -19,11 +19,12 @@ interface KeyboardLayoutProps {
   layout: any[];
   bindings: KeyBinding[];
   onUpdate: (updatedBindings: KeyBinding[]) => void;
+  isPalette?: boolean;
   [key: string]: any;
 }
 
 function KeyboardLayout(props: KeyboardLayoutProps) {
-  const { layout, bindings, onUpdate } = props;
+  const { layout, bindings, onUpdate, isPalette } = props;
   const normalized = useMemo(() => {
     return layout.map((_, i) => (
       bindings[i] || {
@@ -53,6 +54,7 @@ function KeyboardLayout(props: KeyboardLayoutProps) {
           value={normalized[i].value}
           params={normalized[i].params || []}
           onUpdate={(bind: KeyBinding) => handleUpdateBind(i, bind)}
+          isPalette={isPalette}
         />
       ))}
     </div>

@@ -152,3 +152,35 @@
   justify-content: center !important;
   gap: 1px;
 }
+
+.splitKey {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+  font-size: 80%; /* slightly smaller to fit both symbols nicely */
+  height: 100%;
+  width: 100%;
+}
+
+.shifted {
+  font-size: 90%;
+  color: #777;
+  display: block;
+}
+
+.normal {
+  font-size: 100%;
+  font-weight: bold;
+  color: #333;
+  display: block;
+}
+
+.key:hover .normal {
+  color: white;
+}
+
+.key:hover .shifted {
+  color: #eee;
+}
