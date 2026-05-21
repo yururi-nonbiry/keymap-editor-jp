@@ -220,57 +220,61 @@ export default function FileAndSessionModal({
 
   return (
     <Modal>
-      <DialogBox onDismiss={onClose} dismissText="">
+      <DialogBox onDismiss={onClose} dismissText="" className="file-session-dialog">
         <div className="unified-modal-content">
           {/* Left Column: File selection */}
           <div className="unified-modal-column">
             <h3 className="unified-modal-column-title">
               <i className="fas fa-file-upload icon-upload"></i> ファイル選択 / File Selection
             </h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '0.85em', color: '#7f8c8d', lineHeight: '1.4' }}>
+            <p className="unified-modal-subtitle">
               レイアウトとキーマップの設定ファイルをアップロードしてエディタを初期化します。
             </p>
 
-            <div className="modal-file-row">
-              <label style={{ width: '130px' }}>Layout (info.json):</label>
-              <button 
-                type="button" 
-                className="modal-file-button" 
+            <div className="modern-file-picker-grid">
+              <div 
+                className={`modern-file-card ${localLayoutFileName ? 'active' : ''}`}
                 onClick={() => layoutInputRef.current?.click()}
               >
-                ファイル選択
-              </button>
-              <span className={`modal-file-name ${localLayoutFileName ? 'selected' : ''}`} style={{ marginLeft: '10px' }}>
-                {localLayoutFileName || '選択されていません'}
-              </span>
-              <input 
-                ref={layoutInputRef}
-                type="file" 
-                accept=".json" 
-                onChange={handleLayoutChange} 
-                style={{ display: 'none' }} 
-              />
-            </div>
+                <div className="modern-file-card-icon">
+                  <i className={`fas ${localLayoutFileName ? 'fa-keyboard' : 'fa-file-code'}`}></i>
+                </div>
+                <div className="modern-file-card-details">
+                  <span className="modern-file-card-label">Layout Info</span>
+                  <span className="modern-file-card-name" title={localLayoutFileName || '選択されていません'}>
+                    {localLayoutFileName || 'info.json を選択'}
+                  </span>
+                </div>
+                <input 
+                  ref={layoutInputRef}
+                  type="file" 
+                  accept=".json" 
+                  onChange={handleLayoutChange} 
+                  style={{ display: 'none' }} 
+                />
+              </div>
 
-            <div className="modal-file-row">
-              <label style={{ width: '130px' }}>Keymap (.json/.keymap):</label>
-              <button 
-                type="button" 
-                className="modal-file-button" 
+              <div 
+                className={`modern-file-card ${localKeymapFileName ? 'active' : ''}`}
                 onClick={() => keymapInputRef.current?.click()}
               >
-                ファイル選択
-              </button>
-              <span className={`modal-file-name ${localKeymapFileName ? 'selected' : ''}`} style={{ marginLeft: '10px' }}>
-                {localKeymapFileName || '選択されていません'}
-              </span>
-              <input 
-                ref={keymapInputRef}
-                type="file" 
-                accept=".json,.keymap" 
-                onChange={handleKeymapChange} 
-                style={{ display: 'none' }} 
-              />
+                <div className="modern-file-card-icon">
+                  <i className={`fas ${localKeymapFileName ? 'fa-file-signature' : 'fa-code-branch'}`}></i>
+                </div>
+                <div className="modern-file-card-details">
+                  <span className="modern-file-card-label">Keymap File</span>
+                  <span className="modern-file-card-name" title={localKeymapFileName || '選択されていません'}>
+                    {localKeymapFileName || '.json / .keymap'}
+                  </span>
+                </div>
+                <input 
+                  ref={keymapInputRef}
+                  type="file" 
+                  accept=".json,.keymap" 
+                  onChange={handleKeymapChange} 
+                  style={{ display: 'none' }} 
+                />
+              </div>
             </div>
 
             {fileError && (
@@ -289,9 +293,9 @@ export default function FileAndSessionModal({
                 className="btn-modal-load" 
                 disabled={!localLayoutData || !localKeymapData}
                 onClick={handleLoadFiles}
-                style={{ width: '100%', padding: '10px' }}
+                style={{ width: '100%' }}
               >
-                ファイルを読み込む
+                <i className="fas fa-file-import" style={{ marginRight: '6px' }}></i> ファイルを読み込む
               </button>
             </div>
           </div>
@@ -304,11 +308,11 @@ export default function FileAndSessionModal({
             <h3 className="unified-modal-column-title">
               <i className="fas fa-history icon-history"></i> セーブデータ管理 / Saved Sessions
             </h3>
-            <p style={{ margin: '0 0 15px 0', fontSize: '0.85em', color: '#7f8c8d', lineHeight: '1.4' }}>
+            <p className="unified-modal-subtitle">
               現在のエディタの状態をブラウザのローカルストレージにスナップショットとして保存・復元できます。
             </p>
 
-            <div className="saved-sessions-save-form" style={{ display: 'flex', gap: '6px', marginBottom: '15px' }}>
+            <div className="saved-sessions-save-form">
               <input
                 type="text"
                 placeholder="セーブデータ名を入力..."
@@ -316,7 +320,6 @@ export default function FileAndSessionModal({
                 onChange={(e) => setSessionName(e.target.value)}
                 disabled={!hasLoadedKeyboard}
                 className="saved-sessions-input"
-                style={{ flex: 1 }}
               />
               <button
                 onClick={handleSaveSession}
@@ -329,11 +332,15 @@ export default function FileAndSessionModal({
             </div>
 
             {sessions.length === 0 ? (
-              <div className="saved-sessions-empty" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                保存されたセーブデータはありません。
+              <div className="saved-sessions-empty">
+                <div className="empty-icon">
+                  <i className="fas fa-folder-open"></i>
+                </div>
+                <div className="empty-text">セーブデータはありません</div>
+                <div className="empty-subtext">現在のエディタ状態をブラウザに一時保存できます。</div>
               </div>
             ) : (
-              <div className="saved-sessions-list" style={{ flex: 1, maxHeight: '200px' }}>
+              <div className="saved-sessions-list">
                 {sessions.map((session) => (
                   <div key={session.id} className="saved-sessions-item">
                     <div className="saved-sessions-item-info">
@@ -341,8 +348,13 @@ export default function FileAndSessionModal({
                         {session.name}
                       </div>
                       <div className="saved-sessions-item-meta">
-                        <span className="source-tag">{getSourceLabel(session)}</span>
-                        <span className="time-tag">{formatDate(session.timestamp)}</span>
+                        <span className={`source-tag source-${session.source || 'upload'}`}>
+                          {getSourceLabel(session)}
+                        </span>
+                        <span className="time-tag">
+                          <i className="far fa-clock" style={{ marginRight: '4px' }}></i>
+                          {formatDate(session.timestamp)}
+                        </span>
                       </div>
                     </div>
                     <div className="saved-sessions-item-actions">
@@ -372,7 +384,7 @@ export default function FileAndSessionModal({
         </div>
 
         {/* Global Footer Close button */}
-        <div className="modal-actions" style={{ marginTop: '20px', paddingBottom: '0' }}>
+        <div className="modal-actions">
           <button 
             type="button" 
             className="btn-modal-cancel" 
