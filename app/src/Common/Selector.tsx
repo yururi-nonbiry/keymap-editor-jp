@@ -2,15 +2,23 @@ import React from 'react';
 
 const styles: { [key: string]: React.CSSProperties } = {
   selector: {
-    display: 'inline-block',
-    width: 'auto',
-    margin: '5px'
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    margin: '0 5px'
   },
   label: {
     display: 'block',
-    width: '100%',
-    fontSize: '120%',
-    color: '#555'
+    fontSize: '0.75rem',
+    color: '#666',
+    marginBottom: '2px',
+    whiteSpace: 'nowrap'
+  },
+  select: {
+    padding: '2px 4px',
+    fontSize: '0.9rem',
+    borderRadius: '4px',
+    border: '1px solid #ccc'
   }
 }
 
@@ -45,7 +53,7 @@ export default function Selector(props: SelectorProps) {
       <label htmlFor={id} style={styles.label}>
         {label}
       </label>
-      <select id={id} onChange={handleSelect} value={index(value)}>
+      <select id={id} onChange={handleSelect} value={index(value)} style={styles.select}>
         {choices.map(({ name }, i) => (
           <option key={i} value={i}>{name}</option>
         ))}

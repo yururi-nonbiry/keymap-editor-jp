@@ -110,10 +110,10 @@ function KeyboardPicker({ onSelect, hasKeyboardLoaded }: KeyboardPickerProps) {
   }, [source, fetchLocalKeyboard, hasKeyboardLoaded]);
 
   return (
-    <div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       {checkingBackend ? (
-        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-          Checking backend connection...
+        <div style={{ padding: '5px', textAlign: 'center', color: '#666', fontSize: '0.9em' }}>
+          Checking backend...
         </div>
       ) : (
         <>

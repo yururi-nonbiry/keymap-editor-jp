@@ -7,8 +7,6 @@ interface OfflinePickerProps {
 }
 
 function OfflinePicker({ onSelect }: OfflinePickerProps) {
-  const [layoutFile, setLayoutFile] = useState<File | null>(null);
-  const [keymapFile, setKeymapFile] = useState<File | null>(null);
   const [layoutData, setLayoutData] = useState<any[] | null>(null);
   const [keymapData, setKeymapData] = useState<any | null>(null);
   const [error, setError] = useState<{ name: string; errors: string[] } | null>(null);
@@ -16,7 +14,6 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
   const handleLayoutChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setLayoutFile(file);
     const reader = new FileReader();
     reader.onload = (event: ProgressEvent<FileReader>) => {
       try {
@@ -40,17 +37,15 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
         setError(null);
       } catch (err: any) {
         setError({ name: 'Layout File Error', errors: [err.message] });
-        setLayoutFile(null);
         setLayoutData(null);
       }
     };
     reader.readAsText(file);
-  }, [setLayoutFile, setLayoutData, setError]);
+  }, [setLayoutData, setError]);
 
   const handleKeymapChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setKeymapFile(file);
     const reader = new FileReader();
     reader.onload = (event: ProgressEvent<FileReader>) => {
       try {
@@ -71,12 +66,11 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
         setError(null);
       } catch (err: any) {
         setError({ name: 'Keymap File Error', errors: [err.message] });
-        setKeymapFile(null);
         setKeymapData(null);
       }
     };
     reader.readAsText(file);
-  }, [setKeymapFile, setKeymapData, setError]);
+  }, [setKeymapData, setError]);
 
   const handleLoad = useCallback(() => {
     if (layoutData && keymapData) {
@@ -89,22 +83,15 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
   }, [layoutData, keymapData, onSelect]);
 
   return (
-    <div className="offline-picker" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3>Offline Mode - File Upload</h3>
-      <p style={{ fontSize: '0.9em', color: '#666' }}>
-        Please upload your layout (info.json) and keymap (keymap.json or .keymap) files to start editing offline.
-      </p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontWeight: 'bold' }}>Keyboard Layout File (info.json):</label>
-        <input type="file" accept=".json" onChange={handleLayoutChange} />
-        {layoutFile && <span style={{ color: 'green', fontSize: '0.85em' }}>✓ Loaded: {layoutFile.name}</span>}
+    <div className="offline-picker" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <label style={{ fontSize: '0.8em', whiteSpace: 'nowrap' }}>Layout (info.json):</label>
+        <input type="file" accept=".json" onChange={handleLayoutChange} style={{ fontSize: '0.8em', width: '150px' }} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontWeight: 'bold' }}>Keymap File (keymap.json or .keymap):</label>
-        <input type="file" accept=".json,.keymap" onChange={handleKeymapChange} />
-        {keymapFile && <span style={{ color: 'green', fontSize: '0.85em' }}>✓ Loaded: {keymapFile.name}</span>}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <label style={{ fontSize: '0.8em', whiteSpace: 'nowrap' }}>Keymap (.json/.keymap):</label>
+        <input type="file" accept=".json,.keymap" onChange={handleKeymapChange} style={{ fontSize: '0.8em', width: '150px' }} />
       </div>
 
       {error && (
@@ -119,16 +106,16 @@ function OfflinePicker({ onSelect }: OfflinePickerProps) {
         disabled={!layoutData || !keymapData}
         onClick={handleLoad}
         style={{
-          padding: '10px 15px',
+          padding: '4px 8px',
           backgroundColor: layoutData && keymapData ? '#007bff' : '#ccc',
           color: 'white',
           border: 'none',
           borderRadius: '4px',
           cursor: layoutData && keymapData ? 'pointer' : 'not-allowed',
-          marginTop: '10px'
+          fontSize: '0.8em'
         }}
       >
-        Load Keymap Editor
+        Load
       </button>
     </div>
   );
