@@ -128,7 +128,24 @@ function Key(props: KeyProps) {
     if (!data) return;
 
     try {
-      const payload = JSON.parse(data);
+      let payload = JSON.parse(data);
+
+      // If Shift key is pressed during drop, wrap &kp parameters in LS()
+      if (event.shiftKey) {
+        if (payload.value === '&kp' && payload.params && payload.params[0]) {
+          if (payload.params[0].value !== 'LS') {
+            payload = {
+              ...payload,
+              params: [
+                {
+                  value: 'LS',
+                  params: [payload.params[0]]
+                }
+              ]
+            };
+          }
+        }
+      }
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const x = event.clientX - rect.left;
       const currentParams = normalized.params || [];

@@ -180,7 +180,7 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
       <div className={styles['key-palette-header']}>
         <h3 className={styles['key-palette-title']}>{isJp ? 'キーパレット' : 'Key Palette'}</h3>
         <p className={styles['key-palette-subtitle']}>
-          {isJp ? 'キーを上のキーボードにドラッグ＆ドロップしてください' : 'Drag and drop keys to the keyboard above'}
+          {isJp ? 'キーを上のキーボードにドラッグ＆ドロップしてください（Shiftキーを押しながらドロップすると、Shift＋キーが設定されます）' : 'Drag and drop keys to the keyboard above (Hold Shift while dropping to set Shift + key)'}
         </p>
       </div>
       
