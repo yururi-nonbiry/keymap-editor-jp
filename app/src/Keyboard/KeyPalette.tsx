@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useContext, useEffect } from 'react';
 import KeyboardLayout from './KeyboardLayout';
 import { JIS_LAYOUT, US_LAYOUT, PaletteLayoutItem } from '../data/standard-layouts';
-import { KeyBinding } from '../shared/keymapUtils';
+import { KeyBinding, parseKeyBinding } from '../shared/keymapUtils';
 import { SearchContext } from '../providers';
 import Icon from '../Common/Icon';
 import styles from './styles.module.css';
@@ -10,7 +10,7 @@ interface KeyPaletteProps {
   layoutType: string;
 }
 
-type PaletteTab = 'keys' | 'layers' | 'behaviors';
+type PaletteTab = 'keys' | 'layers' | 'behaviors' | 'bluetooth';
 
 function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   const { sources } = useContext(SearchContext);
@@ -57,7 +57,7 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
     }
 
     if (tab === 'behaviors') {
-      const behaviors = ['&kp', '&mt', '&lt', '&mo', '&to', '&tog', '&sl', '&none', '&trans', '&bootloader', '&sys_reset', '&bt', '&ext_power', '&rgb_ug', '&bl'];
+      const behaviors = ['&kp', '&mt', '&lt', '&mo', '&to', '&tog', '&sl', '&none', '&trans', '&bootloader', '&sys_reset', '&ext_power', '&rgb_ug', '&bl'];
       const l: PaletteLayoutItem[] = [];
       const b: KeyBinding[] = [];
 
@@ -73,6 +73,36 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
           value: behavior,
           params: []
         });
+      });
+      return { layout: l, bindings: b };
+    }
+
+    if (tab === 'bluetooth') {
+      const bluetoothItems = [
+        '&bt BT_CLR',
+        '&bt BT_NXT',
+        '&bt BT_PRV',
+        '&bt BT_SEL 0',
+        '&bt BT_SEL 1',
+        '&bt BT_SEL 2',
+        '&bt BT_SEL 3',
+        '&bt BT_SEL 4',
+        '&out OUT_BLE',
+        '&out OUT_USB',
+        '&out OUT_TOG'
+      ];
+      const l: PaletteLayoutItem[] = [];
+      const b: KeyBinding[] = [];
+
+      bluetoothItems.forEach((item, i) => {
+        l.push({
+          x: (i % 6) * 1.5,
+          y: Math.floor(i / 6),
+          w: 1.5,
+          label: item,
+          code: ''
+        });
+        b.push(parseKeyBinding(item));
       });
       return { layout: l, bindings: b };
     }
@@ -138,6 +168,13 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
           >
             <Icon name="sliders" />
             {isJp ? 'ビヘイビア' : 'Behaviors'}
+          </button>
+          <button 
+            onClick={() => setTab('bluetooth')} 
+            className={`${styles['segmented-control-button']} ${tab === 'bluetooth' ? styles.active : ''}`}
+          >
+            <Icon name="bluetooth" collection="brands" />
+            {isJp ? 'Bluetooth' : 'Bluetooth'}
           </button>
         </div>
       </div>
