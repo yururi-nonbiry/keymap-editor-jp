@@ -41,8 +41,8 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
       layers.forEach((layer: any, rowIndex) => {
         layerBehaviors.forEach((behavior, colIndex) => {
           l.push({
-            x: colIndex * 1.5,
-            y: rowIndex,
+            x: rowIndex * 1.5,
+            y: colIndex,
             w: 1.5,
             label: `${behavior.replace('&', '')} ${layer.description}`,
             code: ''
