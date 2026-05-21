@@ -55,13 +55,13 @@ export function validateKeymapJson(keymap: any): void {
         errors.push(`Layer at layers[${i}] must be an array`);
       } else {
         for (const j in layer) {
-          const key = layer[j];
+          const key: any = layer[j];
           const keyPath = `layers[${i}][${j}]`;
 
           if (typeof key !== 'string') {
             errors.push(`Value at "${keyPath}" must be a string`);
           } else {
-            const bind = key.match(/^&.+?\b/);
+            const bind: RegExpMatchArray | null = key.match(/^&.+?\b/);
             if (!(bind && bind[0] in behavioursByBind)) {
               errors.push(`Key bind at "${keyPath}" has invalid behaviour`);
             }

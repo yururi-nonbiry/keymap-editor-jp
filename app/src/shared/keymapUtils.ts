@@ -284,10 +284,192 @@ export function parseKeymapDts(content: string): { layers: string[][]; layer_nam
   };
 }
 
+export function findKeymapNodeRange(content: string): { start: number; end: number } | null {
+  let inLineComment = false;
+  let inBlockComment = false;
+  let inString = false;
+  
+  let i = 0;
+  const len = content.length;
+  
+  while (i < len) {
+    if (inLineComment) {
+      if (content[i] === '\n') {
+        inLineComment = false;
+      }
+      i++;
+      continue;
+    }
+    if (inBlockComment) {
+      if (content[i] === '*' && content[i + 1] === '/') {
+        inBlockComment = false;
+        i += 2;
+      } else {
+        i++;
+      }
+      continue;
+    }
+    if (inString) {
+      if (content[i] === '"' && content[i - 1] !== '\\') {
+        inString = false;
+      }
+      i++;
+      continue;
+    }
+    
+    // Check for comment start
+    if (content[i] === '/' && content[i + 1] === '/') {
+      inLineComment = true;
+      i += 2;
+      continue;
+    }
+    if (content[i] === '/' && content[i + 1] === '*') {
+      inBlockComment = true;
+      i += 2;
+      continue;
+    }
+    if (content[i] === '"') {
+      inString = true;
+      i++;
+      continue;
+    }
+    
+    // Check for "keymap" word
+    if (content.substring(i, i + 6) === 'keymap') {
+      const prevChar = i > 0 ? content[i - 1] : '';
+      const nextChar = i + 6 < len ? content[i + 6] : '';
+      const isWordStart = prevChar === '' || /[^a-zA-Z0-9_]/.test(prevChar);
+      const isWordEnd = nextChar === '' || /[^a-zA-Z0-9_]/.test(nextChar);
+      
+      if (isWordStart && isWordEnd) {
+        let j = i + 6;
+        let foundOpenBrace = false;
+        while (j < len) {
+          if (inLineComment) {
+            if (content[j] === '\n') inLineComment = false;
+            j++;
+            continue;
+          }
+          if (inBlockComment) {
+            if (content[j] === '*' && content[j + 1] === '/') {
+              inBlockComment = false;
+              j += 2;
+            } else {
+              j++;
+            }
+            continue;
+          }
+          if (content[j] === '/' && content[j + 1] === '/') {
+            inLineComment = true;
+            j += 2;
+            continue;
+          }
+          if (content[j] === '/' && content[j + 1] === '*') {
+            inBlockComment = true;
+            j += 2;
+            continue;
+          }
+          if (content[j] === '{') {
+            foundOpenBrace = true;
+            break;
+          }
+          j++;
+        }
+        
+        if (foundOpenBrace) {
+          let depth = 1;
+          let k = j + 1;
+          while (k < len) {
+            if (inLineComment) {
+              if (content[k] === '\n') inLineComment = false;
+              k++;
+              continue;
+            }
+            if (inBlockComment) {
+              if (content[k] === '*' && content[k + 1] === '/') {
+                inBlockComment = false;
+                k += 2;
+              } else {
+                k++;
+              }
+              continue;
+            }
+            if (content[k] === '/' && content[k + 1] === '/') {
+              inLineComment = true;
+              k += 2;
+              continue;
+            }
+            if (content[k] === '/' && content[k + 1] === '*') {
+              inBlockComment = true;
+              k += 2;
+              continue;
+            }
+            if (content[k] === '{') {
+              depth++;
+            } else if (content[k] === '}') {
+              depth--;
+              if (depth === 0) {
+                return { start: i, end: k + 1 };
+              }
+            }
+            k++;
+          }
+        }
+      }
+    }
+    i++;
+  }
+  return null;
+}
+
+export function generateKeymapCodeWithOriginal(
+  layout: LayoutItem[],
+  keymap: Keymap,
+  encoded: EncodedKeymap,
+  originalCode: string
+): string {
+  const range = findKeymapNodeRange(originalCode);
+  if (!range) {
+    return generateKeymapCode(layout, keymap, encoded, keymapTemplate);
+  }
+  
+  const names = keymap.layer_names || [];
+  const renderedLayers = encoded.layers.map((layer, i) => {
+    const name = i === 0 ? 'default_layer' : `layer_${names[i] || i}`;
+    const rendered = renderTable(layout, layer, {
+      linePrefix: '',
+      columnSeparator: ' '
+    });
+
+    return `
+        ${name.replace(/[^a-zA-Z0-9_]/g, '_')} {
+            bindings = <
+${rendered}
+            >;
+        };
+`;
+  }).join('');
+
+  const newKeymapNode = `keymap {
+        compatible = "zmk,keymap";
+${renderedLayers}
+    }`;
+
+  return originalCode.substring(0, range.start) + newKeymapNode + originalCode.substring(range.end);
+}
+
 export function generateKeymap(layout: LayoutItem[], keymap: Keymap, template?: string, behavioursByBind?: Record<string, Behaviour>) {
   const encoded = encodeKeymap(keymap);
+  
+  let code: string;
+  if (keymap.originalCode) {
+    code = generateKeymapCodeWithOriginal(layout, keymap, encoded, keymap.originalCode);
+  } else {
+    code = generateKeymapCode(layout, keymap, encoded, template || keymapTemplate, behavioursByBind);
+  }
+
   return {
-    code: generateKeymapCode(layout, keymap, encoded, template || keymapTemplate, behavioursByBind),
+    code,
     json: generateKeymapJSON(layout, keymap, encoded)
   };
 }

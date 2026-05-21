@@ -21,6 +21,16 @@ export async function fetchKeyboardFiles(installationId: string | number, reposi
   const { data: info } = await fetchFile(installationToken, repository, 'config/info.json', { raw: true, branch });
   const keymap = await fetchKeymap(installationToken, repository, branch);
   const originalCodeKeymap = await findCodeKeymap(installationToken, repository, branch);
+  
+  let originalCode = '';
+  try {
+    const { data } = await fetchFile(installationToken, repository, originalCodeKeymap.path, { raw: true, branch });
+    originalCode = data;
+  } catch (err) {
+    console.error('Failed to fetch original .keymap file content from GitHub:', err);
+  }
+  keymap.originalCode = originalCode;
+
   return { info, keymap, originalCodeKeymap };
 }
 

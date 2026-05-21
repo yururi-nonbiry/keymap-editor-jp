@@ -103,9 +103,10 @@ export default function FileAndSessionModal({
     reader.onload = (event: ProgressEvent<FileReader>) => {
       try {
         const content = event.target?.result as string;
-        let json;
+        let json: any;
         if (file.name.toLowerCase().endsWith('.keymap')) {
           json = parseKeymapDts(content);
+          json.originalCode = content;
         } else {
           json = JSON.parse(content);
         }

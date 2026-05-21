@@ -65,6 +65,17 @@ export function loadKeymap(): Keymap {
     console.log('loadKeymap: reading from path:', keymapPath);
     const result = zmkParseKeymap(JSON.parse(fs.readFileSync(keymapPath, 'utf-8')));
     console.log('loadKeymap: result has layers count:', result.layers ? result.layers.length : null);
+    
+    const keymapFile = findKeymapFile();
+    if (keymapFile) {
+      try {
+        const originalCode = fs.readFileSync(path.join(ZMK_PATH, 'config', keymapFile), 'utf-8');
+        result.originalCode = originalCode;
+      } catch (err) {
+        console.error('Failed to read local keymap file:', err);
+      }
+    }
+    
     return result;
   }
   console.log('loadKeymap: returning EMPTY_KEYMAP');
