@@ -198,49 +198,64 @@ function App() {
   return (
     <>
       <Loader load={initialize}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', padding: '10px' }}>
-          <KeyboardPicker onSelect={handleKeyboardSelected} hasKeyboardLoaded={hasKeyboardLoaded} />
-          <Selector
-            id="keyboard-layout"
-            label="Keyboard Layout"
-            value={keyboardLayout}
-            choices={[
-              { id: 'US', name: 'US Layout' },
-              { id: 'JP', name: 'Japanese (JIS) Layout' }
-            ]}
-            onUpdate={handleLayoutChange}
-          />
-          <SavedSessions
-            currentSession={{ source, sourceOther, layout, keymap, editingKeymap }}
-            onLoadSession={handleLoadSession}
-          />
-        </div>
-        <div id="actions">
-          {source === 'local' && (
-            <button disabled={!editingKeymap} onClick={handleCompile}>
-              Save Local
-            </button>
-          )}
-          {source === 'github' && (
-            <button
-              title="Commit keymap changes to GitHub repository"
-              disabled={!editingKeymap}
-              onClick={handleCommitChanges}
-            >
-              {saving ? 'Saving' : 'Commit Changes'}
-              {saving && <Spinner />}
-            </button>
-          )}
-          {source === 'upload' && (
-            <>
-              <button disabled={!(editingKeymap || keymap)} onClick={handleDownloadKeymapJSON}>
-                Download keymap.json
+        <div className="top-nav" style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          gap: '20px', 
+          padding: '10px 20px',
+          backgroundColor: '#f8f9fa',
+          borderBottom: '1px solid #dee2e6',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <KeyboardPicker onSelect={handleKeyboardSelected} hasKeyboardLoaded={hasKeyboardLoaded} />
+            <Selector
+              id="keyboard-layout"
+              label="Layout Type"
+              value={keyboardLayout}
+              choices={[
+                { id: 'US', name: 'US' },
+                { id: 'JP', name: 'JIS' }
+              ]}
+              onUpdate={handleLayoutChange}
+            />
+            <SavedSessions
+              currentSession={{ source, sourceOther, layout, keymap, editingKeymap }}
+              onLoadSession={handleLoadSession}
+            />
+          </div>
+
+          <div id="actions" style={{ display: 'flex', gap: '10px' }}>
+            {source === 'local' && (
+              <button disabled={!editingKeymap} onClick={handleCompile}>
+                Save Local
               </button>
-              <button disabled={!(editingKeymap || keymap)} onClick={handleDownloadKeymapDTS}>
-                Download .keymap
+            )}
+            {source === 'github' && (
+              <button
+                title="Commit keymap changes to GitHub repository"
+                disabled={!editingKeymap}
+                onClick={handleCommitChanges}
+              >
+                {saving ? 'Saving' : 'Commit Changes'}
+                {saving && <Spinner />}
               </button>
-            </>
-          )}
+            )}
+            {source === 'upload' && (
+              <>
+                <button disabled={!(editingKeymap || keymap)} onClick={handleDownloadKeymapJSON}>
+                  JSON
+                </button>
+                <button disabled={!(editingKeymap || keymap)} onClick={handleDownloadKeymapDTS}>
+                  .keymap
+                </button>
+              </>
+            )}
+          </div>
         </div>
         <DefinitionsContext.Provider value={translatedDefinitions}>
           {layout && (editingKeymap || keymap) && (
