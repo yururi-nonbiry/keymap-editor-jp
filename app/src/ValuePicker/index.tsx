@@ -64,21 +64,26 @@ function ValuePicker (props: ValuePickerProps) {
 
   const actualSearchKey = (isJp && searchKey === 'code') ? 'displayName' : searchKey;
 
+  const searchKeys = useMemo(() => {
+    return ['displayName', 'code', 'symbol', 'description'];
+  }, []);
+
   const results = useMemo(() => {
-    const options = { key: actualSearchKey, limit: 30 }
-    const filtered = fuzzysort.go(query || '', normalizedChoices, options)
+    const options = { keys: searchKeys, limit: 30 };
 
     if (showAll || searchThreshold > normalizedChoices.length) {
-      return normalizedChoices
+      return normalizedChoices;
     } else if (!query) {
-      return normalizedChoices.slice(0, searchThreshold)
+      return normalizedChoices.slice(0, searchThreshold);
     }
+
+    const filtered = fuzzysort.go(query, normalizedChoices, options);
 
     return filtered.map(result => ({
       ...result.obj,
       search: result
-    }))
-  }, [query, normalizedChoices, actualSearchKey, showAll, searchThreshold])
+    }));
+  }, [query, normalizedChoices, searchKeys, showAll, searchThreshold]);
 
   const displayValue = useMemo(() => {
     if (query !== null) return query;
@@ -209,9 +214,9 @@ function ValuePicker (props: ValuePickerProps) {
             onClick={() => handleClickResult(result)}
             onMouseOver={() => setHighlightPosition(i)}
           >
-            {result.search ? (
+            {result.search && (actualSearchKey === 'displayName' ? result.search[0] : result.search[1]) ? (
               <span dangerouslySetInnerHTML={{
-                __html: fuzzysort.highlight(result.search) || ''
+                __html: fuzzysort.highlight(actualSearchKey === 'displayName' ? result.search[0] : result.search[1]) || ''
               }} />
             ) : (
               <span>
@@ -219,10 +224,42 @@ function ValuePicker (props: ValuePickerProps) {
               </span>
             )}
             {result.symbol && result.symbol !== result[actualSearchKey] && (
-              <span className={style.symbol}>({result.symbol})</span>
+              <span className={style.symbol}>
+                (
+                {result.search && result.search[2] ? (
+                  <span dangerouslySetInnerHTML={{
+                    __html: fuzzysort.highlight(result.search[2]) || ''
+                  }} />
+                ) : (
+                  result.symbol
+                )}
+                )
+              </span>
+            )}
+            {result.code && result.code !== result[actualSearchKey] && (
+              <span className={style.description}>
+                [
+                {result.search && result.search[1] ? (
+                  <span dangerouslySetInnerHTML={{
+                    __html: fuzzysort.highlight(result.search[1]) || ''
+                  }} />
+                ) : (
+                  result.code
+                )}
+                ]
+              </span>
             )}
             {result.description && (
-              <span className={style.description}>- {result.description}</span>
+              <span className={style.description}>
+                -{' '}
+                {result.search && result.search[3] ? (
+                  <span dangerouslySetInnerHTML={{
+                    __html: fuzzysort.highlight(result.search[3]) || ''
+                  }} />
+                ) : (
+                  result.description
+                )}
+              </span>
             )}
           </li>
         ))}
