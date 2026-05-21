@@ -166,14 +166,14 @@
 
 .shifted {
   font-size: 90%;
-  color: #777;
+  color: #999;
+  opacity: 0.6;
   display: block;
 }
 
 .normal {
   font-size: 100%;
-  font-weight: bold;
-  color: #333;
+  color: #999;
   display: block;
 }
 
