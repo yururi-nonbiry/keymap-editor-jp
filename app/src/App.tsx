@@ -34,8 +34,16 @@ interface Session {
   keymapFileName?: string | null;
 }
 
+const isSameKeymap = (a: Keymap | null, b: Keymap | null) => {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return JSON.stringify(a) === JSON.stringify(b);
+};
+
 function App() {
   const [definitions, setDefinitions] = useState<any>(null);
+  const [past, setPast] = useState<Keymap[]>([]);
+  const [future, setFuture] = useState<Keymap[]>([]);
 
   // Retrieve saved session on initial render
   const savedSession = useMemo<Session | null>(() => {
@@ -158,6 +166,8 @@ function App() {
       setEditingKeymap(null);
       setLayoutFileName(null);
       setKeymapFileName(null);
+      setPast([]);
+      setFuture([]);
       return;
     }
     const { source, layout: selectedLayout, keymap: selectedKeymap, layoutFileName, keymapFileName, ...other } = event;
@@ -174,6 +184,8 @@ function App() {
       setLayoutFileName(null);
       setKeymapFileName(null);
     }
+    setPast([]);
+    setFuture([]);
   }, [
     setSource,
     setSourceOther,
@@ -181,7 +193,9 @@ function App() {
     setKeymap,
     setEditingKeymap,
     setLayoutFileName,
-    setKeymapFileName
+    setKeymapFileName,
+    setPast,
+    setFuture
   ]);
 
   const handleLoadSession = useCallback((session: Session) => {
@@ -192,7 +206,9 @@ function App() {
     setEditingKeymap(session.editingKeymap);
     setLayoutFileName(session.layoutFileName || null);
     setKeymapFileName(session.keymapFileName || null);
-  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap, setLayoutFileName, setKeymapFileName]);
+    setPast([]);
+    setFuture([]);
+  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap, setLayoutFileName, setKeymapFileName, setPast, setFuture]);
 
   const initialize = useCallback(async () => {
     const [keycodes, behaviours] = await Promise.all([
@@ -207,8 +223,76 @@ function App() {
   }, [setDefinitions]);
 
   const handleUpdateKeymap = useCallback((updatedKeymap: Keymap) => {
+    const currentState = editingKeymap || keymap;
+    if (currentState && !isSameKeymap(currentState, updatedKeymap)) {
+      setPast(prev => [...prev, currentState]);
+      setFuture([]);
+    }
     setEditingKeymap(updatedKeymap);
-  }, [setEditingKeymap]);
+  }, [editingKeymap, keymap, setPast, setFuture]);
+
+  const handleUndo = useCallback(() => {
+    if (past.length === 0) return;
+    const previous = past[past.length - 1];
+    const newPast = past.slice(0, past.length - 1);
+
+    const current = editingKeymap || keymap;
+    if (current) {
+      setFuture(prev => [current, ...prev]);
+    }
+
+    setPast(newPast);
+    setEditingKeymap(previous);
+  }, [past, editingKeymap, keymap, setPast, setFuture, setEditingKeymap]);
+
+  const handleRedo = useCallback(() => {
+    if (future.length === 0) return;
+    const next = future[0];
+    const newFuture = future.slice(1);
+
+    const current = editingKeymap || keymap;
+    if (current) {
+      setPast(prev => [...prev, current]);
+    }
+
+    setFuture(newFuture);
+    setEditingKeymap(next);
+  }, [future, editingKeymap, keymap, setPast, setFuture, setEditingKeymap]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const isCmdOrCtrl = isMac ? event.metaKey : event.ctrlKey;
+
+      if (isCmdOrCtrl) {
+        if (event.key.toLowerCase() === 'z') {
+          event.preventDefault();
+          if (event.shiftKey) {
+            handleRedo();
+          } else {
+            handleUndo();
+          }
+        } else if (event.key.toLowerCase() === 'y') {
+          event.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleUndo, handleRedo]);
 
   const hasKeyboardLoaded = useMemo(() => {
     return !!layout && (!!keymap || !!editingKeymap);
@@ -251,6 +335,26 @@ function App() {
               currentSession={{ source, sourceOther, layout, keymap, editingKeymap }}
               onLoadSession={handleLoadSession}
             />
+            {hasKeyboardLoaded && (
+              <div className="undo-redo-group">
+                <button
+                  className="btn-undo"
+                  onClick={handleUndo}
+                  disabled={past.length === 0}
+                  title="Undo (Ctrl+Z)"
+                >
+                  <i className="fas fa-undo"></i> 元に戻す
+                </button>
+                <button
+                  className="btn-redo"
+                  onClick={handleRedo}
+                  disabled={future.length === 0}
+                  title="Redo (Ctrl+Y / Ctrl+Shift+Z)"
+                >
+                  <i className="fas fa-redo"></i> やり直す
+                </button>
+              </div>
+            )}
           </div>
 
           <div id="actions" style={{ display: 'flex', gap: '10px' }}>

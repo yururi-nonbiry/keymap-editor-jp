@@ -485,4 +485,48 @@ html, body {
   max-width: 100%;
 }
 
+/* Undo / Redo Buttons */
+.undo-redo-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-undo, .btn-redo {
+  padding: 6px 14px;
+  background-color: #ffffff;
+  color: #4a5568;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-undo:hover:not([disabled]), .btn-redo:hover:not([disabled]) {
+  background-color: #edf2f7;
+  color: #2d3748;
+  border-color: #a0aec0;
+  transform: translateY(-1px);
+}
+
+.btn-undo:active:not([disabled]), .btn-redo:active:not([disabled]) {
+  transform: translateY(0);
+}
+
+.btn-undo:disabled, .btn-redo:disabled {
+  background-color: #f8f9fa;
+  color: #cbd5e1;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+
 
