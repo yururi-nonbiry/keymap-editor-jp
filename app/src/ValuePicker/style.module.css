@@ -1,5 +1,6 @@
 .dialog {
-  width: 300px;
+  width: 450px;
+  max-width: 90vw;
 }
 .dialog p {
 	margin: 0;
@@ -49,4 +50,17 @@ ul.results {
   color: var(--selection);
   border-bottom: 1px dotted var(--selection);
   cursor: pointer;
+}
+
+.symbol {
+  font-weight: bold;
+  opacity: 0.8;
+  margin-left: 6px;
+  color: #3b82f6;
+}
+
+.description {
+  font-size: 85%;
+  opacity: 0.65;
+  margin-left: 8px;
 }

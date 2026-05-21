@@ -35,8 +35,14 @@ export function isComplex(normalized: KeyNode, behaviourParams: Param[]): boolea
   return isLongSymbol || isMultiParam || isNestedParam;
 }
 
-export function createPromptMessage(param: any): string {
-  const promptMapping: Record<string, string> = {
+export function createPromptMessage(param: any, isJp?: boolean): string {
+  const promptMapping: Record<string, string> = isJp ? {
+    layer: 'レイヤーを選択',
+    mod: 'モディファイアを選択',
+    behaviour: '動作を選択',
+    command: 'コマンドを選択',
+    keycode: 'キーコードを選択'
+  } : {
     layer: 'Select layer',
     mod: 'Select modifier',
     behaviour: 'Select behaviour',
@@ -45,7 +51,7 @@ export function createPromptMessage(param: any): string {
   };
 
   if (param.name) {
-    return `Select ${param.name}`;
+    return isJp ? `${param.name}を選択` : `Select ${param.name}`;
   }
 
   return (

@@ -16,6 +16,7 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   const { sources } = useContext(SearchContext);
   const [tab, setTab] = useState<PaletteTab>('keys');
   const [layoutType, setLayoutType] = useState(initialLayoutType);
+  const isJp = initialLayoutType === 'JP';
 
   useEffect(() => {
     setLayoutType(initialLayoutType);
@@ -102,8 +103,10 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   return (
     <div className={styles['key-palette-container']}>
       <div className={styles['key-palette-header']}>
-        <h3 className={styles['key-palette-title']}>Key Palette</h3>
-        <p className={styles['key-palette-subtitle']}>Drag and drop keys to the keyboard above</p>
+        <h3 className={styles['key-palette-title']}>{isJp ? 'キーパレット' : 'Key Palette'}</h3>
+        <p className={styles['key-palette-subtitle']}>
+          {isJp ? 'キーを上のキーボードにドラッグ＆ドロップしてください' : 'Drag and drop keys to the keyboard above'}
+        </p>
       </div>
       
       <div className={styles['segmented-control-wrapper']}>
@@ -113,28 +116,28 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
             className={`${styles['segmented-control-button']} ${(tab === 'keys' && layoutType === 'US') ? styles.active : ''}`}
           >
             <Icon name="keyboard" />
-            US Keys
+            {isJp ? 'US キー' : 'US Keys'}
           </button>
           <button 
             onClick={() => { setTab('keys'); setLayoutType('JP'); }} 
             className={`${styles['segmented-control-button']} ${(tab === 'keys' && layoutType === 'JP') ? styles.active : ''}`}
           >
             <Icon name="keyboard" />
-            JIS Keys
+            {isJp ? 'JIS キー' : 'JIS Keys'}
           </button>
           <button 
             onClick={() => setTab('layers')} 
             className={`${styles['segmented-control-button']} ${tab === 'layers' ? styles.active : ''}`}
           >
             <Icon name="layer-group" />
-            Layers
+            {isJp ? 'レイヤー' : 'Layers'}
           </button>
           <button 
             onClick={() => setTab('behaviors')} 
             className={`${styles['segmented-control-button']} ${tab === 'behaviors' ? styles.active : ''}`}
           >
             <Icon name="sliders" />
-            Behaviors
+            {isJp ? 'ビヘイビア' : 'Behaviors'}
           </button>
         </div>
       </div>

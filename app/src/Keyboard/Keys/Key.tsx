@@ -41,7 +41,8 @@ interface EditingState {
 }
 
 function Key(props: KeyProps) {
-  const { getSearchTargets, sources } = useContext(SearchContext);
+  const { getSearchTargets, sources, layoutType } = useContext(SearchContext);
+  const isJp = layoutType === 'JP';
   const { position, rotation, size } = props;
   const { label, value, params, onUpdate } = props;
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -218,10 +219,11 @@ function Key(props: KeyProps) {
           value={editing.code}
           param={editing.param}
           choices={editing.targets}
-          prompt={createPromptMessage(editing.param)}
+          prompt={createPromptMessage(editing.param, isJp)}
           searchKey="code"
           onSelect={handleSelectValue}
           onCancel={() => setEditing(null)}
+          isJp={isJp}
         />
       </Modal>
     )}

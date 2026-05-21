@@ -40,10 +40,11 @@ interface ValuePickerProps {
   showAllThreshold?: number;
   onCancel: () => void;
   onSelect: (choice: Choice) => void;
+  isJp?: boolean;
 }
 
 function ValuePicker (props: ValuePickerProps) {
-  const { value, prompt, choices, searchKey, searchThreshold = 10, showAllThreshold = 50 } = props
+  const { value, prompt, choices, searchKey, searchThreshold = 10, showAllThreshold = 50, isJp } = props
   const { onCancel, onSelect } = props
 
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -197,14 +198,20 @@ function ValuePicker (props: ValuePickerProps) {
                 {result[searchKey]}
               </span>
             )}
+            {result.symbol && result.symbol !== result[searchKey] && (
+              <span className={style.symbol}>({result.symbol})</span>
+            )}
+            {result.description && (
+              <span className={style.description}>- {result.description}</span>
+            )}
           </li>
         ))}
       </ul>
       {choices.length > searchThreshold && (
         <div className={style['choices-counter']}>
-          Total choices: {choices.length}.
+          {isJp ? `選択肢の総数: ${choices.length}.` : `Total choices: ${choices.length}.`}
           {enableShowAllButton && (
-            <button onClick={() => setShowAll(true)}>Show all</button>
+            <button onClick={() => setShowAll(true)}>{isJp ? 'すべて表示' : 'Show all'}</button>
           )}
         </div>
       )}

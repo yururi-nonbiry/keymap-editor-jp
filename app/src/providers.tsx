@@ -13,6 +13,7 @@ export const DefinitionsContext = createContext<DefinitionsContextType>({
 export interface SearchContextType {
   getSearchTargets: (param: any, behaviour: string) => any[];
   sources: any;
+  layoutType?: string;
 }
 
 export const SearchContext = createContext<SearchContextType>({

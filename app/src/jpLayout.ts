@@ -3,17 +3,21 @@ import { NormalizedKeycode } from './keycodes';
 
 interface JpTranslation {
   symbol?: string;
-  description: string;
+  description?: string;
 }
 
 const jpKeycodeTranslations: Record<string, JpTranslation> = {
   // Number row
-  NUMBER_2: { description: "2 and \" [Double Quote]" },
-  NUMBER_6: { description: "6 and & [Ampersand]" },
-  NUMBER_7: { description: "7 and ' [Single Quote]" },
-  NUMBER_8: { description: "8 and ( [Left Parenthesis]" },
-  NUMBER_9: { description: "9 and ) [Right Parenthesis]" },
-  NUMBER_0: { description: "0" },
+  NUMBER_1: { symbol: "1", description: "1 and ! [Exclamation]" },
+  NUMBER_2: { symbol: "2", description: "2 and \" [Double Quote]" },
+  NUMBER_3: { symbol: "3", description: "3 and # [Hash / Pound]" },
+  NUMBER_4: { symbol: "4", description: "4 and $ [Dollar]" },
+  NUMBER_5: { symbol: "5", description: "5 and % [Percent]" },
+  NUMBER_6: { symbol: "6", description: "6 and & [Ampersand]" },
+  NUMBER_7: { symbol: "7", description: "7 and ' [Single Quote]" },
+  NUMBER_8: { symbol: "8", description: "8 and ( [Left Parenthesis]" },
+  NUMBER_9: { symbol: "9", description: "9 and ) [Right Parenthesis]" },
+  NUMBER_0: { symbol: "0" },
 
   // Symbols
   MINUS: { symbol: "-", description: "- and = [Equal]" },
