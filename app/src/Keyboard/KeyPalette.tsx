@@ -11,7 +11,7 @@ interface KeyPaletteProps {
   layoutType: string;
 }
 
-type PaletteTab = 'keys' | 'layers' | 'behaviors' | 'bluetooth';
+type PaletteTab = 'keys' | 'layers' | 'behaviors' | 'bluetooth' | 'others';
 
 function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   const parentSearchContext = useContext(SearchContext);
@@ -24,6 +24,27 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
     if (!rawDefinitions) return [];
     return layoutType === 'JP' ? getJpDefinitions(rawDefinitions).keycodes : rawDefinitions.keycodes;
   }, [rawDefinitions, layoutType]);
+
+  const standardCodes = useMemo(() => {
+    const codes = new Set<string>();
+    US_LAYOUT.forEach(k => { if (k.code) codes.add(k.code); });
+    JIS_LAYOUT.forEach(k => { if (k.code) codes.add(k.code); });
+    return codes;
+  }, []);
+
+  const otherKeycodes = useMemo(() => {
+    if (!localKeycodes) return [];
+    const seen = new Set<string>();
+    const result: any[] = [];
+    localKeycodes.forEach((kc: any) => {
+      const hasCode = standardCodes.has(kc.code) || (kc.aliases && kc.aliases.some((alias: string) => standardCodes.has(alias)));
+      if (!hasCode && !seen.has(kc.code)) {
+        seen.add(kc.code);
+        result.push(kc);
+      }
+    });
+    return result;
+  }, [localKeycodes, standardCodes]);
 
   const sources = useMemo(() => {
     if (!rawDefinitions) return parentSearchContext.sources;
@@ -152,8 +173,28 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
       return { layout: l, bindings: b };
     }
 
+    if (tab === 'others') {
+      const l: PaletteLayoutItem[] = [];
+      const b: KeyBinding[] = [];
+
+      otherKeycodes.forEach((kc: any, i: number) => {
+        l.push({
+          x: (i % 6) * 1.5,
+          y: Math.floor(i / 6),
+          w: 1.5,
+          label: kc.displayName || kc.symbol || kc.code.replace(/^KC_/, ''),
+          code: ''
+        });
+        b.push({
+          value: '&kp',
+          params: [{ value: kc.code, params: [] }]
+        });
+      });
+      return { layout: l, bindings: b };
+    }
+
     return { layout: [], bindings: [] };
-  }, [tab, layoutType, sources.layer]);
+  }, [tab, layoutType, sources.layer, otherKeycodes]);
 
   const handleUpdate = () => {
     // Palette is read-only for updates
@@ -220,6 +261,13 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
           >
             <Icon name="bluetooth" collection="brands" />
             {isJp ? 'Bluetooth' : 'Bluetooth'}
+          </button>
+          <button 
+            onClick={() => setTab('others')} 
+            className={`${styles['segmented-control-button']} ${tab === 'others' ? styles.active : ''}`}
+          >
+            <Icon name="plus" />
+            {isJp ? 'その他キー' : 'Other Keys'}
           </button>
         </div>
       </div>
