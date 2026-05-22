@@ -422,6 +422,46 @@ export function findKeymapNodeRange(content: string): { start: number; end: numb
   return null;
 }
 
+export function extractSensorBindings(content: string): (string | null)[] {
+  const cleanContent = stripComments(content);
+  let searchScope = cleanContent;
+
+  const keymapStartMatch = cleanContent.match(/keymap\s*\{/);
+  if (keymapStartMatch) {
+    const startPos = (keymapStartMatch.index || 0) + keymapStartMatch[0].length;
+    let depth = 1;
+    let pos = startPos;
+    while (depth > 0 && pos < cleanContent.length) {
+      if (cleanContent[pos] === '{') depth++;
+      else if (cleanContent[pos] === '}') depth--;
+      pos++;
+    }
+    if (depth === 0) {
+      searchScope = cleanContent.substring(startPos, pos - 1);
+    }
+  }
+
+  const sensorBindingsList: (string | null)[] = [];
+  const layerRegex = /([\w-]+)\s*\{([\s\S]*?bindings\s*=\s*<([\s\S]*?)>;([\s\S]*?))\};/g;
+  let match;
+  while ((match = layerRegex.exec(searchScope)) !== null) {
+    const beforeBindings = match[2].split('bindings')[0];
+    const afterBindings = match[4];
+    
+    // Look for sensor-bindings in either the section before or after bindings
+    const sensorMatchBefore = beforeBindings.match(/sensor-bindings\s*=\s*<([\s\S]*?)>;/);
+    const sensorMatchAfter = afterBindings.match(/sensor-bindings\s*=\s*<([\s\S]*?)>;/);
+    
+    const sensorMatch = sensorMatchBefore || sensorMatchAfter;
+    if (sensorMatch) {
+      sensorBindingsList.push(sensorMatch[1].replace(/\s+/g, ' ').trim());
+    } else {
+      sensorBindingsList.push(null);
+    }
+  }
+  return sensorBindingsList;
+}
+
 export function generateKeymapCodeWithOriginal(
   layout: LayoutItem[],
   keymap: Keymap,
@@ -433,6 +473,8 @@ export function generateKeymapCodeWithOriginal(
     return generateKeymapCode(layout, keymap, encoded, keymapTemplate);
   }
   
+  const originalSensorBindings = extractSensorBindings(originalCode);
+
   const names = keymap.layer_names || [];
   const renderedLayers = encoded.layers.map((layer, i) => {
     const name = i === 0 ? 'default_layer' : `layer_${names[i] || i}`;
@@ -441,11 +483,16 @@ export function generateKeymapCodeWithOriginal(
       columnSeparator: ' '
     });
 
+    let sensorBindingsStr = '';
+    if (originalSensorBindings && originalSensorBindings[i]) {
+      sensorBindingsStr = `\n            sensor-bindings = <${originalSensorBindings[i]}>;`;
+    }
+
     return `
         ${name.replace(/[^a-zA-Z0-9_]/g, '_')} {
             bindings = <
 ${rendered}
-            >;
+            >;${sensorBindingsStr}
         };
 `;
   }).join('');
