@@ -152,7 +152,7 @@ function Keyboard(props: KeyboardProps) {
         onDeleteLayer={handleDeleteLayer}
       />
       <SearchContext.Provider value={{ getSearchTargets, sources, layoutType: keyboardLayoutType }}>
-        <div style={wrapperStyle}>
+        <div className="screen-only" style={wrapperStyle}>
           {isReady && (
             <KeyboardLayout
               data-layer={activeLayer}
@@ -163,6 +163,26 @@ function Keyboard(props: KeyboardProps) {
           )}
         </div>
         <KeyPalette layoutType={keyboardLayoutType} />
+
+        {isReady && (
+          <div className="print-only print-container">
+            {keymap.layers.map((layerBindings, index) => {
+              const layerName = (keymap.layer_names || [])[index] || `Layer ${index}`;
+              return (
+                <div key={index} className="print-page">
+                  <h2 className="print-layer-title">{layerName}</h2>
+                  <div style={wrapperStyle}>
+                    <KeyboardLayout
+                      layout={layout}
+                      bindings={layerBindings}
+                      onUpdate={() => {}}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </SearchContext.Provider>
     </>
   );

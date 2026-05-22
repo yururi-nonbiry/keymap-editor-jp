@@ -371,6 +371,15 @@ function App() {
           </div>
 
           <div id="actions" style={{ display: 'flex', gap: '10px' }}>
+            {hasKeyboardLoaded && (
+              <button
+                onClick={() => window.print()}
+                className="btn-export-pdf"
+                title="各レイヤーの配置をPDFに書き出す"
+              >
+                <i className="fas fa-file-pdf"></i> PDF書き出し
+              </button>
+            )}
             {source === 'local' && (
               <button disabled={!editingKeymap} onClick={handleCompile}>
                 Save Local

@@ -818,7 +818,146 @@ html, body {
   }
 }
 
+/* PDF Export Button Styling */
+.btn-export-pdf {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  transition: all 0.2s ease;
+}
 
+.btn-export-pdf:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+  background: linear-gradient(135deg, #f87171 0%, #e11d48 100%) !important;
+}
 
+.btn-export-pdf:active {
+  transform: translateY(0);
+}
 
+/* Screen and Print media rules */
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  /* Hide all screen-only elements */
+  .top-nav,
+  .footer,
+  .layer-selector,
+  [class*="layer-selector"],
+  .key-palette-container,
+  [class*="key-palette-container"],
+  .screen-only,
+  button,
+  header,
+  nav,
+  footer,
+  aside,
+  .undo-redo-group {
+    display: none !important;
+  }
+
+  /* Global overrides for print context */
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure the main page container doesn't restrict height or overflow */
+  #root, .app {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  @page {
+    size: landscape;
+    margin: 15mm;
+  }
+
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 20px;
+    margin: 0 auto;
+  }
+
+  .print-layer-title {
+    font-family: Quicksand, avenir, sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 8px;
+    width: 80%;
+  }
+
+  /* Override key styles in print to ensure high contrast and readability */
+  div[class*="key"] {
+    background-color: #f8f9fa !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+    box-shadow: none !important;
+  }
+  
+  span[class*="behaviour-binding"] {
+    color: #64748b !important;
+    font-weight: 600 !important;
+  }
+
+  span[class*="code"] {
+    color: #0f172a !important;
+  }
+  
+  span[class*="shiftedSymbol"] {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+  }
+  
+  span[class*="shifted"] {
+    color: #475569 !important;
+  }
+  
+  span[class*="normal"] {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+  }
+  
+  span[class*="paren"] {
+    color: #94a3b8 !important;
+  }
+
+  /* Force background colors and borders to print accurately */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
 
