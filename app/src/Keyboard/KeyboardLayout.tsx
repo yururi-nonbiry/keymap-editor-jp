@@ -55,6 +55,7 @@ function KeyboardLayout(props: KeyboardLayoutProps) {
           params={normalized[i].params || []}
           onUpdate={(bind: KeyBinding) => handleUpdateBind(i, bind)}
           isPalette={isPalette}
+          isEncoder={key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder'}
         />
       ))}
     </div>

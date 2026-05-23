@@ -31,6 +31,7 @@ interface KeyProps {
   params: any[];
   onUpdate: (updated: any) => void;
   isPalette?: boolean;
+  isEncoder?: boolean;
 }
 
 interface EditingState {
@@ -44,7 +45,7 @@ interface EditingState {
 function Key(props: KeyProps) {
   const { getSearchTargets, sources, layoutType } = useContext(SearchContext);
   const isJp = layoutType === 'JP';
-  const { position, rotation, size, isPalette } = props;
+  const { position, rotation, size, isPalette, isEncoder } = props;
   const { label, value, params, onUpdate } = props;
   const [editing, setEditing] = useState<EditingState | null>(null);
   const [dragSide, setDragSide] = useState<'left' | 'right' | 'none'>('none');
@@ -197,7 +198,7 @@ function Key(props: KeyProps) {
 
   return (
     <div
-      className={`${styles.key} ${dragSide === 'left' ? styles['highlight-left'] : ''} ${dragSide === 'right' ? styles['highlight-right'] : ''}`}
+      className={`${styles.key} ${isEncoder ? styles.encoder : ''} ${dragSide === 'left' ? styles['highlight-left'] : ''} ${dragSide === 'right' ? styles['highlight-right'] : ''}`}
       data-behaviour={value}
       data-label={label}
       data-u={size.u}

@@ -167,6 +167,34 @@ function App() {
     URL.revokeObjectURL(url);
   }, [layout, keymap, editingKeymap]);
 
+  const normalizeKeymap = useCallback((layout: any[] | null, keymap: Keymap | null): Keymap | null => {
+    if (!layout || !keymap) return keymap;
+    const isEncoder = (key: any) => !!(key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder');
+    const encoderCount = layout.filter(isEncoder).length;
+    
+    const layerNames = keymap.layer_names || keymap.layers.map((_, i) => `Layer ${i}`);
+    
+    let sensor_bindings = keymap.sensor_bindings || [];
+    if (encoderCount > 0) {
+      sensor_bindings = keymap.layers.map((_, i) => {
+        const layerSensors = sensor_bindings[i] || [];
+        const paddedLayer = [...layerSensors];
+        while (paddedLayer.length < encoderCount) {
+          paddedLayer.push({ value: i === 0 ? '&none' : '&trans', params: [] });
+        }
+        return paddedLayer.slice(0, encoderCount);
+      });
+    } else {
+      sensor_bindings = [];
+    }
+
+    return {
+      ...keymap,
+      layer_names: layerNames,
+      sensor_bindings
+    };
+  }, []);
+
   const handleKeyboardSelected = useCallback((event: any) => {
     if (typeof event === 'string') {
       setSource(event);
@@ -181,10 +209,12 @@ function App() {
     }
     const { source, layout: selectedLayout, keymap: selectedKeymap, layoutFileName, keymapFileName, ...other } = event;
 
+    const normalizedKeymap = normalizeKeymap(selectedLayout, selectedKeymap);
+
     setSource(source);
     setSourceOther(other);
     setLayout(selectedLayout);
-    setKeymap(selectedKeymap);
+    setKeymap(normalizedKeymap);
     setEditingKeymap(null);
     if (source === 'upload') {
       setLayoutFileName(layoutFileName || null);
@@ -204,20 +234,24 @@ function App() {
     setLayoutFileName,
     setKeymapFileName,
     setPast,
-    setFuture
+    setFuture,
+    normalizeKeymap
   ]);
 
   const handleLoadSession = useCallback((session: Session) => {
+    const normalizedKeymap = session.keymap ? normalizeKeymap(session.layout || [], session.keymap) : null;
+    const normalizedEditingKeymap = session.editingKeymap ? normalizeKeymap(session.layout || [], session.editingKeymap) : null;
+
     setSource(session.source);
     setSourceOther(session.sourceOther);
     setLayout(session.layout);
-    setKeymap(session.keymap);
-    setEditingKeymap(session.editingKeymap);
+    setKeymap(normalizedKeymap);
+    setEditingKeymap(normalizedEditingKeymap);
     setLayoutFileName(session.layoutFileName || null);
     setKeymapFileName(session.keymapFileName || null);
     setPast([]);
     setFuture([]);
-  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap, setLayoutFileName, setKeymapFileName, setPast, setFuture]);
+  }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap, setLayoutFileName, setKeymapFileName, setPast, setFuture, normalizeKeymap]);
 
   const initialize = useCallback(async () => {
     const [keycodes, behaviours] = await Promise.all([

@@ -24,6 +24,31 @@ function Keyboard(props: KeyboardProps) {
   const [activeLayer, setActiveLayer] = useState(0);
   const { keycodes, behaviours } = useContext(DefinitionsContext);
 
+  const isEncoder = useCallback((key: any) => {
+    return !!(key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder');
+  }, []);
+
+  const getCombinedBindings = useCallback((layerIndex: number) => {
+    let keyIndex = 0;
+    let encoderIndex = 0;
+    const layerKeys = keymap.layers[layerIndex] || [];
+    const layerSensors = keymap.sensor_bindings?.[layerIndex] || [];
+
+    return layout.map(key => {
+      if (isEncoder(key)) {
+        const bind = layerSensors[encoderIndex] || { value: '&none', params: [] };
+        encoderIndex++;
+        return bind;
+      } else {
+        const bind = layerKeys[keyIndex] || { value: '&none', params: [] };
+        keyIndex++;
+        return bind;
+      }
+    });
+  }, [layout, keymap, isEncoder]);
+
+  const activeCombinedBindings = useMemo(() => getCombinedBindings(activeLayer), [activeLayer, getCombinedBindings]);
+
   const availableLayers = useMemo(() => isEmpty(keymap) ? [] : (
     (keymap.layers || []).map((_, i) => ({
       code: i.toString(),
@@ -97,23 +122,59 @@ function Keyboard(props: KeyboardProps) {
     const binding = '&trans';
     const makeKeycode = (): KeyBinding => ({ value: binding, params: [] });
 
-    const newLayer = times(layout.length, makeKeycode);
+    let keyCount = 0;
+    let encoderCount = 0;
+    layout.forEach(key => {
+      if (isEncoder(key)) {
+        encoderCount++;
+      } else {
+        keyCount++;
+      }
+    });
+
+    const newLayer = times(keyCount, makeKeycode);
     const updatedLayerNames = [ ...(keymap.layer_names || []), `Layer #${layer}` ];
     const layers = [ ...keymap.layers, newLayer ];
 
-    onUpdate({ ...keymap, layer_names: updatedLayerNames, layers });
-  }, [keymap, layout, onUpdate]);
+    const newSensorLayer = times(encoderCount, makeKeycode);
+    const sensor_bindings = [ ...(keymap.sensor_bindings || []), newSensorLayer ];
 
-  const handleUpdateLayer = useCallback((layerIndex: number, updatedLayer: KeyBinding[]) => {
-    const original = keymap.layers;
+    onUpdate({ ...keymap, layer_names: updatedLayerNames, layers, sensor_bindings });
+  }, [keymap, layout, isEncoder, onUpdate]);
+
+  const handleUpdateLayer = useCallback((layerIndex: number, updatedCombined: KeyBinding[]) => {
+    const updatedKeys: KeyBinding[] = [];
+    const updatedSensors: KeyBinding[] = [];
+
+    layout.forEach((key, i) => {
+      const bind = updatedCombined[i] || { value: '&none', params: [] };
+      if (isEncoder(key)) {
+        updatedSensors.push(bind);
+      } else {
+        updatedKeys.push(bind);
+      }
+    });
+
+    const originalLayers = keymap.layers;
     const layers = [
-      ...original.slice(0, layerIndex),
-      updatedLayer,
-      ...original.slice(layerIndex + 1)
+      ...originalLayers.slice(0, layerIndex),
+      updatedKeys,
+      ...originalLayers.slice(layerIndex + 1)
     ];
 
-    onUpdate({ ...keymap, layers });
-  }, [keymap, onUpdate]);
+    const originalSensors = keymap.sensor_bindings || [];
+    const paddedSensors = [...originalSensors];
+    while (paddedSensors.length < layers.length) {
+      paddedSensors.push([]);
+    }
+    const sensor_bindings = [
+      ...paddedSensors.slice(0, layerIndex),
+      updatedSensors,
+      ...paddedSensors.slice(layerIndex + 1)
+    ];
+
+    onUpdate({ ...keymap, layers, sensor_bindings });
+  }, [keymap, layout, isEncoder, onUpdate]);
 
   const handleRenameLayer = useCallback((layerName: string) => {
     const layer_names = [
@@ -132,13 +193,18 @@ function Keyboard(props: KeyboardProps) {
     const layers = [...keymap.layers];
     layers.splice(layerIndex, 1);
 
+    const sensor_bindings = [...(keymap.sensor_bindings || [])];
+    if (sensor_bindings.length > layerIndex) {
+      sensor_bindings.splice(layerIndex, 1);
+    }
+
     let newActiveLayer = activeLayer;
     if (activeLayer > layers.length - 1) {
       newActiveLayer = Math.max(0, layers.length - 1);
       setActiveLayer(newActiveLayer);
     }
 
-    onUpdate({ ...keymap, layers, layer_names });
+    onUpdate({ ...keymap, layers, layer_names, sensor_bindings });
   }, [keymap, activeLayer, onUpdate]);
 
   return (
@@ -157,7 +223,7 @@ function Keyboard(props: KeyboardProps) {
             <KeyboardLayout
               data-layer={activeLayer}
               layout={layout}
-              bindings={keymap.layers[activeLayer]}
+              bindings={activeCombinedBindings}
               onUpdate={(updatedLayer: KeyBinding[]) => handleUpdateLayer(activeLayer, updatedLayer)}
             />
           )}
@@ -174,7 +240,7 @@ function Keyboard(props: KeyboardProps) {
                   <div style={wrapperStyle}>
                     <KeyboardLayout
                       layout={layout}
-                      bindings={layerBindings}
+                      bindings={getCombinedBindings(index)}
                       onUpdate={() => {}}
                     />
                   </div>

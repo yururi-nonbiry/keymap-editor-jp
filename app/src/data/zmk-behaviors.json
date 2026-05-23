@@ -198,5 +198,11 @@
     "code": "&none",
     "name": "None",
     "params": []
+  },
+  {
+    "code": "&inc_dec_kp",
+    "name": "Increment/Decrement Key Press",
+    "params": ["code", "code"],
+    "includes": ["#include <dt-bindings/zmk/keys.h>"]
   }
 ]
