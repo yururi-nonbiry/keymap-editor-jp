@@ -72,16 +72,25 @@ function App() {
   // Autosave session to localStorage
   useEffect(() => {
     if (source || layout || keymap || editingKeymap) {
+      // Strip conn from sourceOther to prevent serialization error
+      const cleanSourceOther = sourceOther ? { ...sourceOther } : null;
+      if (cleanSourceOther && cleanSourceOther.conn) {
+        delete cleanSourceOther.conn;
+      }
       const session = {
         source,
-        sourceOther,
+        sourceOther: cleanSourceOther,
         layout,
         keymap,
         editingKeymap,
         layoutFileName,
         keymapFileName
       };
-      localStorage.setItem('keymap-editor:last-session', JSON.stringify(session));
+      try {
+        localStorage.setItem('keymap-editor:last-session', JSON.stringify(session));
+      } catch (e) {
+        console.error('Failed to serialize session', e);
+      }
     } else {
       localStorage.removeItem('keymap-editor:last-session');
     }
@@ -138,6 +147,71 @@ function App() {
     setKeymap,
     setEditingKeymap
   ]);
+
+  const handleWriteToKeyboard = useCallback(async () => {
+    const conn = sourceOther?.conn;
+    const currentKeymap = editingKeymap;
+    const originalKeymap = keymap;
+    
+    if (!conn || !currentKeymap || !originalKeymap || !layout) return;
+
+    setSaving(true);
+    try {
+      const { callRpc, encodeParameter, saveChanges } = await import('./api/zmkStudioService');
+      const { zmk } = await import('./proto/proto');
+
+      for (let layerIndex = 0; layerIndex < currentKeymap.layers.length; layerIndex++) {
+        const originalLayer = originalKeymap.layers[layerIndex] || [];
+        const currentLayer = currentKeymap.layers[layerIndex] || [];
+        
+        for (let keyIndex = 0; keyIndex < currentLayer.length; keyIndex++) {
+          const originalBind = originalLayer[keyIndex];
+          const currentBind = currentLayer[keyIndex];
+          
+          if (JSON.stringify(originalBind) !== JSON.stringify(currentBind)) {
+            const behaviorName = currentBind.value;
+            const behaviorId = conn.behaviorNameToId[behaviorName];
+            
+            if (behaviorId === undefined) {
+              console.warn(`Behavior ${behaviorName} is not registered on the keyboard. Skipping.`);
+              continue;
+            }
+
+            const param1Str = currentBind.params[0]?.value || '';
+            const param2Str = currentBind.params[1]?.value || '';
+            const param1 = param1Str ? encodeParameter(behaviorName, 1, param1Str) : 0;
+            const param2 = param2Str ? encodeParameter(behaviorName, 2, param2Str) : 0;
+
+            console.log(`Writing change: Layer ${layerIndex}, Key ${keyIndex}, Behavior ${behaviorName} (${behaviorId}), Params: ${param1}, ${param2}`);
+            
+            await callRpc(conn, {
+              keymap: zmk.keymap.Request.create({
+                setLayerBinding: {
+                  layerId: layerIndex,
+                  keyPosition: keyIndex,
+                  binding: {
+                    behaviorId,
+                    param1,
+                    param2
+                  }
+                }
+              })
+            });
+          }
+        }
+      }
+
+      await saveChanges(conn);
+      
+      setKeymap(editingKeymap);
+      setEditingKeymap(null);
+    } catch (e: any) {
+      console.error('Failed to write changes to keyboard', e);
+      alert(`書き込みに失敗しました: ${e.message || e}`);
+    } finally {
+      setSaving(false);
+    }
+  }, [layout, keymap, editingKeymap, sourceOther, setSaving, setKeymap, setEditingKeymap]);
 
   const handleDownloadKeymapJSON = useCallback(() => {
     const currentKeymap = editingKeymap || keymap;
@@ -427,6 +501,34 @@ function App() {
               >
                 {saving ? 'Saving' : 'Commit Changes'}
                 {saving && <Spinner />}
+              </button>
+            )}
+            {(source === 'usb' || source === 'ble') && (
+              <button
+                title="Write keymap changes directly to the keyboard"
+                disabled={!editingKeymap || saving}
+                onClick={handleWriteToKeyboard}
+                style={{
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                {saving ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }} />
+                    書き込み中...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-keyboard" style={{ marginRight: '8px' }} />
+                    キーボードに保存
+                  </>
+                )}
               </button>
             )}
             {source === 'upload' && (
