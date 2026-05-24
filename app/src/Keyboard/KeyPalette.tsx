@@ -123,7 +123,7 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
     }
 
     if (tab === 'behaviors') {
-      const behaviors = ['&kp', '&mt', '&lt', '&mo', '&to', '&tog', '&sl', '&none', '&trans', '&bootloader', '&sys_reset', '&ext_power', '&rgb_ug', '&bl'];
+      const behaviors = ['&kp', '&mt', '&lt', '&mo', '&to', '&tog', '&sl', '&none', '&trans', '&bootloader', '&sys_reset', '&ext_power', '&rgb_ug', '&bl', '&inc_dec_kp'];
       const l: PaletteLayoutItem[] = [];
       const b: KeyBinding[] = [];
 

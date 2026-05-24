@@ -1,8 +1,5 @@
-import filter from 'lodash/filter';
-import flatten from 'lodash/flatten';
-import get from 'lodash/get';
-import map from 'lodash/map';
-import uniq from 'lodash/uniq';
+import _ from 'lodash';
+const { filter, flatten, get, map, uniq } = _;
 
 export interface KeyBinding {
   value: string;
