@@ -84,7 +84,26 @@ export default function FileAndSessionModal({
           throw new Error('Invalid layout JSON. Must define a "layouts" object or be a layouts array.');
         }
 
-        setLocalLayoutData(layout);
+        let encoders: any[] = [];
+        if (json.encoders && Array.isArray(json.encoders)) {
+          encoders = json.encoders.map((enc: any) => ({
+            ...enc,
+            w: enc.w || 1,
+            h: enc.h || 1,
+            isEncoder: true,
+            label: enc.label || 'Encoder'
+          }));
+        } else if (json.encoder?.rotary && Array.isArray(json.encoder.rotary)) {
+          encoders = json.encoder.rotary.map((enc: any) => ({
+            ...enc,
+            w: enc.w || 1,
+            h: enc.h || 1,
+            isEncoder: true,
+            label: enc.label || 'Encoder'
+          }));
+        }
+
+        setLocalLayoutData([...layout, ...encoders]);
         setFileError(null);
       } catch (err: any) {
         setFileError({ name: 'Layout File Error', errors: [err.message] });

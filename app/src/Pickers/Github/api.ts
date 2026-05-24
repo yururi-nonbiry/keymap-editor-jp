@@ -128,8 +128,29 @@ export class API extends EventEmitter {
       const { data } = await this._request(url.toString()) as { data: KeyboardFilesResponse }
       const layouts = data.info.layouts
       const defaultLayout = layouts.default || layouts[Object.keys(layouts)[0]]
+
+      let encoders: any[] = [];
+      const info = data.info as any;
+      if (info.encoders && Array.isArray(info.encoders)) {
+        encoders = info.encoders.map((enc: any) => ({
+          ...enc,
+          w: enc.w || 1,
+          h: enc.h || 1,
+          isEncoder: true,
+          label: enc.label || 'Encoder'
+        }));
+      } else if (info.encoder?.rotary && Array.isArray(info.encoder.rotary)) {
+        encoders = info.encoder.rotary.map((enc: any) => ({
+          ...enc,
+          w: enc.w || 1,
+          h: enc.h || 1,
+          isEncoder: true,
+          label: enc.label || 'Encoder'
+        }));
+      }
+
       return {
-        layout: defaultLayout.layout,
+        layout: [...defaultLayout.layout, ...encoders],
         keymap: data.keymap
       }
     } catch (err: any) {

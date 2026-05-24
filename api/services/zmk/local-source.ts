@@ -54,7 +54,28 @@ export function loadLayout(layout?: string): LayoutItem[] {
   const layoutPath = path.join(ZMK_PATH, 'config', layoutFile);
   const data = JSON.parse(fs.readFileSync(layoutPath, 'utf-8'));
   const layoutKey = layout || Object.keys(data.layouts)[0];
-  return data.layouts[layoutKey].layout;
+  const layoutItems = data.layouts[layoutKey].layout;
+
+  let encoders: any[] = [];
+  if (data.encoders && Array.isArray(data.encoders)) {
+    encoders = data.encoders.map((enc: any) => ({
+      ...enc,
+      w: enc.w || 1,
+      h: enc.h || 1,
+      isEncoder: true,
+      label: enc.label || 'Encoder'
+    }));
+  } else if (data.encoder?.rotary && Array.isArray(data.encoder.rotary)) {
+    encoders = data.encoder.rotary.map((enc: any) => ({
+      ...enc,
+      w: enc.w || 1,
+      h: enc.h || 1,
+      isEncoder: true,
+      label: enc.label || 'Encoder'
+    }));
+  }
+
+  return [...layoutItems, ...encoders];
 }
 
 export function loadKeymap(): Keymap {
