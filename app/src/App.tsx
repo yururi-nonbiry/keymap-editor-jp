@@ -341,12 +341,13 @@ function App() {
 
   const handleUpdateKeymap = useCallback((updatedKeymap: Keymap) => {
     const currentState = editingKeymap || keymap;
-    if (currentState && !isSameKeymap(currentState, updatedKeymap)) {
+    const normalized = normalizeKeymap(layout, updatedKeymap) || updatedKeymap;
+    if (currentState && !isSameKeymap(currentState, normalized)) {
       setPast(prev => [...prev, currentState]);
       setFuture([]);
     }
-    setEditingKeymap(updatedKeymap);
-  }, [editingKeymap, keymap, setPast, setFuture]);
+    setEditingKeymap(normalized);
+  }, [editingKeymap, keymap, layout, normalizeKeymap, setPast, setFuture]);
 
   const handleUndo = useCallback(() => {
     if (past.length === 0) return;

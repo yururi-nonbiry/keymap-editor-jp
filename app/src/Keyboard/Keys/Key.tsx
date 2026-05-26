@@ -57,7 +57,16 @@ function Key(props: KeyProps) {
   const normalized = hydrateTree(value as string, params, sources);
 
   const index = makeIndex(normalized);
-  const positioningStyle = getKeyStyles(position, size, rotation || {});
+  const positioningStyle = getKeyStyles(position, size, rotation || {}) as any;
+  if (isEncoder && positioningStyle) {
+    const wVal = parseFloat(positioningStyle.width || '0');
+    const hVal = parseFloat(positioningStyle.height || '0');
+    if (wVal > 0 && hVal > 0) {
+      const minSize = Math.min(wVal, hVal);
+      positioningStyle.width = `${minSize}px`;
+      positioningStyle.height = `${minSize}px`;
+    }
+  }
 
   function onMouseOver(event: React.MouseEvent) {
     const old = document.querySelector(`.${styles.highlight}`);

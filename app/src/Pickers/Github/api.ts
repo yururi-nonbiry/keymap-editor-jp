@@ -129,24 +129,38 @@ export class API extends EventEmitter {
       const layouts = data.info.layouts
       const defaultLayout = layouts.default || layouts[Object.keys(layouts)[0]]
 
+      let maxLayoutY = 0;
+      defaultLayout.layout.forEach((item: any) => {
+        if (item && typeof item.y === 'number') {
+          const itemH = item.h || 1;
+          if (item.y + itemH > maxLayoutY) {
+            maxLayoutY = item.y + itemH;
+          }
+        }
+      });
+
+      const mapEncoder = (enc: any, idx: number) => {
+        const w = enc.w || 1;
+        const h = enc.h || 1;
+        const x = (typeof enc.x === 'number') ? enc.x : idx * 1.5;
+        const y = (typeof enc.y === 'number') ? enc.y : maxLayoutY + 0.5;
+        return {
+          ...enc,
+          x,
+          y,
+          w,
+          h,
+          isEncoder: true,
+          label: enc.label || `Encoder ${idx + 1}`
+        };
+      };
+
       let encoders: any[] = [];
       const info = data.info as any;
       if (info.encoders && Array.isArray(info.encoders)) {
-        encoders = info.encoders.map((enc: any) => ({
-          ...enc,
-          w: enc.w || 1,
-          h: enc.h || 1,
-          isEncoder: true,
-          label: enc.label || 'Encoder'
-        }));
+        encoders = info.encoders.map(mapEncoder);
       } else if (info.encoder?.rotary && Array.isArray(info.encoder.rotary)) {
-        encoders = info.encoder.rotary.map((enc: any) => ({
-          ...enc,
-          w: enc.w || 1,
-          h: enc.h || 1,
-          isEncoder: true,
-          label: enc.label || 'Encoder'
-        }));
+        encoders = info.encoder.rotary.map(mapEncoder);
       }
 
       return {

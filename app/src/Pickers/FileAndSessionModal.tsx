@@ -84,23 +84,37 @@ export default function FileAndSessionModal({
           throw new Error('Invalid layout JSON. Must define a "layouts" object or be a layouts array.');
         }
 
+        let maxLayoutY = 0;
+        layout.forEach((item: any) => {
+          if (item && typeof item.y === 'number') {
+            const itemH = item.h || 1;
+            if (item.y + itemH > maxLayoutY) {
+              maxLayoutY = item.y + itemH;
+            }
+          }
+        });
+
+        const mapEncoder = (enc: any, idx: number) => {
+          const w = enc.w || 1;
+          const h = enc.h || 1;
+          const x = (typeof enc.x === 'number') ? enc.x : idx * 1.5;
+          const y = (typeof enc.y === 'number') ? enc.y : maxLayoutY + 0.5;
+          return {
+            ...enc,
+            x,
+            y,
+            w,
+            h,
+            isEncoder: true,
+            label: enc.label || `Encoder ${idx + 1}`
+          };
+        };
+
         let encoders: any[] = [];
         if (json.encoders && Array.isArray(json.encoders)) {
-          encoders = json.encoders.map((enc: any) => ({
-            ...enc,
-            w: enc.w || 1,
-            h: enc.h || 1,
-            isEncoder: true,
-            label: enc.label || 'Encoder'
-          }));
+          encoders = json.encoders.map(mapEncoder);
         } else if (json.encoder?.rotary && Array.isArray(json.encoder.rotary)) {
-          encoders = json.encoder.rotary.map((enc: any) => ({
-            ...enc,
-            w: enc.w || 1,
-            h: enc.h || 1,
-            isEncoder: true,
-            label: enc.label || 'Encoder'
-          }));
+          encoders = json.encoder.rotary.map(mapEncoder);
         }
 
         setLocalLayoutData([...layout, ...encoders]);

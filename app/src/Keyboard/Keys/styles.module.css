@@ -252,8 +252,15 @@
 	background-color: #ffffff;
 }
 
-.key.encoder .behaviour-binding {
+.key.encoder[data-behaviour="&inc_dec_kp"] .behaviour-binding {
 	display: none !important;
+}
+
+.key.encoder:not([data-behaviour="&inc_dec_kp"]) .behaviour-binding {
+	position: static !important;
+	font-size: 12px !important;
+	font-weight: bold;
+	opacity: 0.8;
 }
 
 .key.encoder .params {
@@ -269,6 +276,7 @@
 .key.encoder .params .param {
 	font-size: 70% !important;
 	background-color: rgba(0, 0, 0, 0.05);
+	color: #333 !important;
 	padding: 2px 4px !important;
 	border-radius: 3px;
 	max-width: 45% !important;

@@ -56,23 +56,37 @@ export function loadLayout(layout?: string): LayoutItem[] {
   const layoutKey = layout || Object.keys(data.layouts)[0];
   const layoutItems = data.layouts[layoutKey].layout;
 
+  let maxLayoutY = 0;
+  layoutItems.forEach((item: any) => {
+    if (item && typeof item.y === 'number') {
+      const itemH = item.h || 1;
+      if (item.y + itemH > maxLayoutY) {
+        maxLayoutY = item.y + itemH;
+      }
+    }
+  });
+
+  const mapEncoder = (enc: any, idx: number) => {
+    const w = enc.w || 1;
+    const h = enc.h || 1;
+    const x = (typeof enc.x === 'number') ? enc.x : idx * 1.5;
+    const y = (typeof enc.y === 'number') ? enc.y : maxLayoutY + 0.5;
+    return {
+      ...enc,
+      x,
+      y,
+      w,
+      h,
+      isEncoder: true,
+      label: enc.label || `Encoder ${idx + 1}`
+    };
+  };
+
   let encoders: any[] = [];
   if (data.encoders && Array.isArray(data.encoders)) {
-    encoders = data.encoders.map((enc: any) => ({
-      ...enc,
-      w: enc.w || 1,
-      h: enc.h || 1,
-      isEncoder: true,
-      label: enc.label || 'Encoder'
-    }));
+    encoders = data.encoders.map(mapEncoder);
   } else if (data.encoder?.rotary && Array.isArray(data.encoder.rotary)) {
-    encoders = data.encoder.rotary.map((enc: any) => ({
-      ...enc,
-      w: enc.w || 1,
-      h: enc.h || 1,
-      isEncoder: true,
-      label: enc.label || 'Encoder'
-    }));
+    encoders = data.encoder.rotary.map(mapEncoder);
   }
 
   return [...layoutItems, ...encoders];
