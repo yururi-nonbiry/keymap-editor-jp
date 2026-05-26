@@ -115,6 +115,8 @@ export default function FileAndSessionModal({
           encoders = json.encoders.map(mapEncoder);
         } else if (json.encoder?.rotary && Array.isArray(json.encoder.rotary)) {
           encoders = json.encoder.rotary.map(mapEncoder);
+        } else if (json.sensors && Array.isArray(json.sensors)) {
+          encoders = json.sensors.map(mapEncoder);
         }
 
         setLocalLayoutData([...layout, ...encoders]);

@@ -161,6 +161,8 @@ export class API extends EventEmitter {
         encoders = info.encoders.map(mapEncoder);
       } else if (info.encoder?.rotary && Array.isArray(info.encoder.rotary)) {
         encoders = info.encoder.rotary.map(mapEncoder);
+      } else if (info.sensors && Array.isArray(info.sensors)) {
+        encoders = info.sensors.map(mapEncoder);
       }
 
       return {

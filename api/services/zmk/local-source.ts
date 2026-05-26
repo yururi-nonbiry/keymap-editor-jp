@@ -87,6 +87,8 @@ export function loadLayout(layout?: string): LayoutItem[] {
     encoders = data.encoders.map(mapEncoder);
   } else if (data.encoder?.rotary && Array.isArray(data.encoder.rotary)) {
     encoders = data.encoder.rotary.map(mapEncoder);
+  } else if (data.sensors && Array.isArray(data.sensors)) {
+    encoders = data.sensors.map(mapEncoder);
   }
 
   return [...layoutItems, ...encoders];
