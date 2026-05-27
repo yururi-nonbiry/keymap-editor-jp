@@ -28,6 +28,9 @@ function Keyboard(props: KeyboardProps) {
     return !!(key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder');
   }, []);
 
+  console.log('[DEBUG Keyboard] layout length:', layout.length, 'encoders:', layout.filter(k => isEncoder(k)).length);
+  console.log('[DEBUG Keyboard] sensor_bindings:', keymap.sensor_bindings);
+
   const getCombinedBindings = useCallback((layerIndex: number) => {
     let keyIndex = 0;
     let encoderIndex = 0;

@@ -112,12 +112,19 @@ export default function FileAndSessionModal({
 
         let encoders: any[] = [];
         if (json.encoders && Array.isArray(json.encoders)) {
+          console.log('[DEBUG] Found json.encoders:', json.encoders);
           encoders = json.encoders.map(mapEncoder);
         } else if (json.encoder?.rotary && Array.isArray(json.encoder.rotary)) {
+          console.log('[DEBUG] Found json.encoder.rotary:', json.encoder.rotary);
           encoders = json.encoder.rotary.map(mapEncoder);
         } else if (json.sensors && Array.isArray(json.sensors)) {
+          console.log('[DEBUG] Found json.sensors:', json.sensors);
           encoders = json.sensors.map(mapEncoder);
+        } else {
+          console.log('[DEBUG] No encoders/sensors found in JSON. Keys:', Object.keys(json));
         }
+        console.log('[DEBUG] Mapped encoders:', encoders);
+        console.log('[DEBUG] Layout items:', layout.length, '+ Encoders:', encoders.length, '= Total:', layout.length + encoders.length);
 
         setLocalLayoutData([...layout, ...encoders]);
         setFileError(null);
