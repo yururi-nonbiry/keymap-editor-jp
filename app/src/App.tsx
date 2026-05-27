@@ -244,7 +244,14 @@ function App() {
   const normalizeKeymap = useCallback((layout: any[] | null, keymap: Keymap | null): Keymap | null => {
     if (!layout || !keymap) return keymap;
     const isEncoder = (key: any) => !!(key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder');
-    const encoderCount = layout.filter(isEncoder).length;
+    
+    // Determine encoder count by taking the maximum of:
+    // 1. Encoders defined in the layout array
+    // 2. The maximum number of sensor bindings configured in any keymap layer
+    const maxSensorsInBindings = keymap.sensor_bindings
+      ? Math.max(0, ...keymap.sensor_bindings.map(layer => layer?.length || 0))
+      : 0;
+    const encoderCount = Math.max(layout.filter(isEncoder).length, maxSensorsInBindings);
     
     const layerNames = keymap.layer_names || keymap.layers.map((_, i) => `Layer ${i}`);
     
