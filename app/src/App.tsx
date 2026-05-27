@@ -245,9 +245,6 @@ function App() {
     if (!layout || !keymap) return keymap;
     const isEncoder = (key: any) => !!(key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder');
     const encoderCount = layout.filter(isEncoder).length;
-    console.log('[DEBUG normalizeKeymap] layout length:', layout.length, 'encoderCount:', encoderCount);
-    console.log('[DEBUG normalizeKeymap] encoder items:', layout.filter(isEncoder));
-    console.log('[DEBUG normalizeKeymap] keymap.sensor_bindings:', keymap.sensor_bindings);
     
     const layerNames = keymap.layer_names || keymap.layers.map((_, i) => `Layer ${i}`);
     
@@ -264,7 +261,6 @@ function App() {
     } else {
       sensor_bindings = [];
     }
-    console.log('[DEBUG normalizeKeymap] resulting sensor_bindings:', sensor_bindings);
 
     return {
       ...keymap,
@@ -288,8 +284,6 @@ function App() {
     const { source, layout: selectedLayout, keymap: selectedKeymap, layoutFileName, keymapFileName, ...other } = event;
 
     const normalizedKeymap = normalizeKeymap(selectedLayout, selectedKeymap);
-    console.log('[DEBUG handleKeyboardSelected] selectedLayout length:', selectedLayout?.length, 'source:', source);
-    console.log('[DEBUG handleKeyboardSelected] encoders in layout:', selectedLayout?.filter((k: any) => k.isEncoder));
 
     setSource(source);
     setSourceOther(other);

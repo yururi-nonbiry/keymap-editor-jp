@@ -8,6 +8,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import KeyboardLayout from './KeyboardLayout';
 import KeyPalette from './KeyPalette';
 import LayerSelector from './LayerSelector';
+import Key from './Keys/Key';
 import { getKeyBoundingBox } from '../key-units';
 import { DefinitionsContext, SearchContext } from '../providers';
 import { Keymap, KeyBinding } from '../shared/keymapUtils';
@@ -28,29 +29,25 @@ function Keyboard(props: KeyboardProps) {
     return !!(key.isEncoder || key.encoder || key.type === 'encoder' || key.variant === 'encoder');
   }, []);
 
-  console.log('[DEBUG Keyboard] layout length:', layout.length, 'encoders:', layout.filter(k => isEncoder(k)).length);
-  console.log('[DEBUG Keyboard] sensor_bindings:', keymap.sensor_bindings);
-
-  const getCombinedBindings = useCallback((layerIndex: number) => {
-    let keyIndex = 0;
-    let encoderIndex = 0;
-    const layerKeys = keymap.layers[layerIndex] || [];
-    const layerSensors = keymap.sensor_bindings?.[layerIndex] || [];
-
-    return layout.map(key => {
-      if (isEncoder(key)) {
-        const bind = layerSensors[encoderIndex] || { value: '&none', params: [] };
-        encoderIndex++;
-        return bind;
-      } else {
-        const bind = layerKeys[keyIndex] || { value: '&none', params: [] };
-        keyIndex++;
-        return bind;
-      }
-    });
-  }, [layout, keymap, isEncoder]);
-
-  const activeCombinedBindings = useMemo(() => getCombinedBindings(activeLayer), [activeLayer, getCombinedBindings]);
+  const normalLayout = useMemo(() => layout.filter(key => !isEncoder(key)), [layout, isEncoder]);
+  const encoderLayout = useMemo(() => {
+    const existing = layout.filter(key => isEncoder(key));
+    const sensorBindingCount = keymap.sensor_bindings?.[activeLayer]?.length || keymap.sensor_bindings?.[0]?.length || 0;
+    const count = Math.max(existing.length, sensorBindingCount);
+    if (existing.length >= count) {
+      return existing;
+    }
+    const dummy = [...existing];
+    for (let i = existing.length; i < count; i++) {
+      dummy.push({
+        isEncoder: true,
+        label: `Encoder ${i + 1}`,
+        x: i * 1.5,
+        y: 0
+      });
+    }
+    return dummy;
+  }, [layout, isEncoder, keymap.sensor_bindings, activeLayer]);
 
   const availableLayers = useMemo(() => isEmpty(keymap) ? [] : (
     (keymap.layers || []).map((_, i) => ({
@@ -101,7 +98,7 @@ function Keyboard(props: KeyboardProps) {
   }, [searchTargets, sources]);
 
   const boundingBox = useMemo(() => {
-    return layout.map(key => getKeyBoundingBox(
+    return normalLayout.map(key => getKeyBoundingBox(
       { x: key.x, y: key.y },
       { u: key.u || key.w || 1, h: key.h || 1 },
       { x: key.rx, y: key.ry, a: key.r }
@@ -109,7 +106,7 @@ function Keyboard(props: KeyboardProps) {
       x: Math.max(x, max.x),
       y: Math.max(y, max.y)
     }), { x: 0, y: 0 });
-  }, [layout]);
+  }, [normalLayout]);
 
   const wrapperStyle = useMemo(() => {
     return {
@@ -145,19 +142,7 @@ function Keyboard(props: KeyboardProps) {
     onUpdate({ ...keymap, layer_names: updatedLayerNames, layers, sensor_bindings });
   }, [keymap, layout, isEncoder, onUpdate]);
 
-  const handleUpdateLayer = useCallback((layerIndex: number, updatedCombined: KeyBinding[]) => {
-    const updatedKeys: KeyBinding[] = [];
-    const updatedSensors: KeyBinding[] = [];
-
-    layout.forEach((key, i) => {
-      const bind = updatedCombined[i] || { value: '&none', params: [] };
-      if (isEncoder(key)) {
-        updatedSensors.push(bind);
-      } else {
-        updatedKeys.push(bind);
-      }
-    });
-
+  const handleUpdateLayer = useCallback((layerIndex: number, updatedKeys: KeyBinding[]) => {
     const originalLayers = keymap.layers;
     const layers = [
       ...originalLayers.slice(0, layerIndex),
@@ -165,19 +150,30 @@ function Keyboard(props: KeyboardProps) {
       ...originalLayers.slice(layerIndex + 1)
     ];
 
+    onUpdate({ ...keymap, layers });
+  }, [keymap, onUpdate]);
+
+  const handleUpdateSensor = useCallback((layerIndex: number, encoderIndex: number, updatedBinding: KeyBinding) => {
     const originalSensors = keymap.sensor_bindings || [];
     const paddedSensors = [...originalSensors];
-    while (paddedSensors.length < layers.length) {
+    while (paddedSensors.length <= layerIndex) {
       paddedSensors.push([]);
     }
+
+    const layerSensors = [...(paddedSensors[layerIndex] || [])];
+    while (layerSensors.length <= encoderIndex) {
+      layerSensors.push({ value: '&none', params: [] });
+    }
+    layerSensors[encoderIndex] = updatedBinding;
+
     const sensor_bindings = [
       ...paddedSensors.slice(0, layerIndex),
-      updatedSensors,
+      layerSensors,
       ...paddedSensors.slice(layerIndex + 1)
     ];
 
-    onUpdate({ ...keymap, layers, sensor_bindings });
-  }, [keymap, layout, isEncoder, onUpdate]);
+    onUpdate({ ...keymap, sensor_bindings });
+  }, [keymap, onUpdate]);
 
   const handleRenameLayer = useCallback((layerName: string) => {
     const layer_names = [
@@ -225,12 +221,87 @@ function Keyboard(props: KeyboardProps) {
           {isReady && (
             <KeyboardLayout
               data-layer={activeLayer}
-              layout={layout}
-              bindings={activeCombinedBindings}
+              layout={normalLayout}
+              bindings={keymap.layers[activeLayer] || []}
               onUpdate={(updatedLayer: KeyBinding[]) => handleUpdateLayer(activeLayer, updatedLayer)}
             />
           )}
         </div>
+
+        {encoderLayout.length > 0 && (
+          <div className="encoder-panel screen-only" style={{
+            maxWidth: '1200px',
+            margin: '20px auto',
+            padding: '20px',
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px'
+          }}>
+            <h3 style={{
+              margin: 0,
+              fontSize: '1.1rem',
+              fontWeight: 600,
+              color: '#495057',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fas fa-sync-alt" style={{ color: '#007bff' }}></i>
+              ロータリーエンコーダー設定 (Rotary Encoder Settings)
+            </h3>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '20px',
+              padding: '10px 0'
+            }}>
+              {encoderLayout.map((enc, idx) => {
+                const binding = keymap.sensor_bindings?.[activeLayer]?.[idx] || { value: '&none', params: [] };
+                return (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    background: '#f8f9fa',
+                    border: '1px solid #e9ecef',
+                    minWidth: '140px'
+                  }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#6c757d' }}>
+                      {enc.label || `Encoder ${idx + 1}`}
+                    </span>
+                    <div style={{ position: 'relative', width: '70px', height: '70px' }}>
+                      <Key
+                        position={{ x: 0, y: 0 }}
+                        size={{ u: 1, h: 1 }}
+                        value={binding.value}
+                        params={binding.params || []}
+                        onUpdate={(updatedBind) => handleUpdateSensor(activeLayer, idx, updatedBind)}
+                        isEncoder={true}
+                        relative={true}
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                          left: '0',
+                          top: '0'
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <KeyPalette layoutType={keyboardLayoutType} />
 
         {isReady && (
@@ -242,11 +313,57 @@ function Keyboard(props: KeyboardProps) {
                   <h2 className="print-layer-title">{layerName}</h2>
                   <div style={wrapperStyle}>
                     <KeyboardLayout
-                      layout={layout}
-                      bindings={getCombinedBindings(index)}
+                      layout={normalLayout}
+                      bindings={keymap.layers[index] || []}
                       onUpdate={() => {}}
                     />
                   </div>
+                  {encoderLayout.length > 0 && (
+                    <div className="print-encoder-panel" style={{
+                      marginTop: '20px',
+                      display: 'flex',
+                      gap: '15px',
+                      justifyContent: 'center'
+                    }}>
+                      {encoderLayout.map((enc, idx) => {
+                        const binding = keymap.sensor_bindings?.[index]?.[idx] || { value: '&none', params: [] };
+                        return (
+                          <div key={idx} style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '8px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            minWidth: '80px'
+                          }}>
+                            <span style={{ fontSize: '10px', color: '#666' }}>
+                              {enc.label || `Encoder ${idx + 1}`}
+                            </span>
+                            <div style={{ position: 'relative', width: '50px', height: '50px' }}>
+                              <Key
+                                position={{ x: 0, y: 0 }}
+                                size={{ u: 1, h: 1 }}
+                                value={binding.value}
+                                params={binding.params || []}
+                                onUpdate={() => {}}
+                                isEncoder={true}
+                                relative={true}
+                                style={{
+                                  position: 'relative',
+                                  width: '100%',
+                                  height: '100%',
+                                  left: '0',
+                                  top: '0'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}

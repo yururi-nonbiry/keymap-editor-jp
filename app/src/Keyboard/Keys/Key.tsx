@@ -32,6 +32,8 @@ interface KeyProps {
   onUpdate: (updated: any) => void;
   isPalette?: boolean;
   isEncoder?: boolean;
+  relative?: boolean;
+  style?: React.CSSProperties;
 }
 
 interface EditingState {
@@ -57,8 +59,10 @@ function Key(props: KeyProps) {
   const normalized = hydrateTree(value as string, params, sources);
 
   const index = makeIndex(normalized);
-  const positioningStyle = getKeyStyles(position, size, rotation || {}) as any;
-  if (isEncoder && positioningStyle) {
+  const positioningStyle = props.relative
+    ? { position: 'relative' as const }
+    : getKeyStyles(position, size, rotation || {}) as any;
+  if (isEncoder && positioningStyle && !props.relative) {
     const wVal = parseFloat(positioningStyle.width || '0');
     const hVal = parseFloat(positioningStyle.height || '0');
     if (wVal > 0 && hVal > 0) {
@@ -67,6 +71,10 @@ function Key(props: KeyProps) {
       positioningStyle.height = `${minSize}px`;
     }
   }
+  const finalStyle = {
+    ...positioningStyle,
+    ...props.style
+  };
 
   function onMouseOver(event: React.MouseEvent) {
     const old = document.querySelector(`.${styles.highlight}`);
@@ -216,7 +224,7 @@ function Key(props: KeyProps) {
       data-simple={isSimple(normalized)}
       // @ts-ignore
       data-long={isComplex(normalized, behaviourParams)}
-      style={positioningStyle as React.CSSProperties}
+      style={finalStyle as React.CSSProperties}
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
       onClick={handleSelectBehaviour}
