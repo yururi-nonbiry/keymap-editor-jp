@@ -15,6 +15,14 @@ interface SavedSessionData {
   editingKeymap: any | null;
 }
 
+interface PendingSaveData {
+  timestamp: string;
+  source: string | null;
+  sourceOther: any | null;
+  layout: any[] | null;
+  keymap: any | null;
+}
+
 interface FileAndSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -58,6 +66,10 @@ export default function FileAndSessionModal({
       setLocalLayoutFileName(layoutFileName);
       setLocalKeymapFileName(keymapFileName);
       setFileError(null);
+      setShowConflictDialog(false);
+      setConflictSession(null);
+      setConflictNewName('');
+      setPendingSaveData(null);
     }
   }, [isOpen, layoutFileName, keymapFileName]);
 
@@ -179,6 +191,12 @@ export default function FileAndSessionModal({
   const [sessions, setSessions] = useState<SavedSessionData[]>([]);
   const [sessionName, setSessionName] = useState('');
 
+  // --- Duplicate Session Conflict State ---
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [conflictSession, setConflictSession] = useState<SavedSessionData | null>(null);
+  const [conflictNewName, setConflictNewName] = useState('');
+  const [pendingSaveData, setPendingSaveData] = useState<PendingSaveData | null>(null);
+
   // Load saved sessions from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('keymap-editor:saved-sessions');
@@ -214,22 +232,97 @@ export default function FileAndSessionModal({
     const defaultName = `セーブデータ (${formatDate(now)})`;
     const finalName = sessionName.trim() || defaultName;
 
-    const newSession: SavedSessionData = {
-      id: Date.now().toString(),
-      name: finalName,
+    const saveData: PendingSaveData = {
       timestamp: now,
       source,
       sourceOther,
       layout,
-      keymap: editingKeymap || keymap,
+      keymap: editingKeymap || keymap
+    };
+
+    const existingSession = sessions.find(s => s.name === finalName);
+
+    if (existingSession) {
+      setConflictSession(existingSession);
+      setConflictNewName(`${finalName} (新しい名称)`);
+      setPendingSaveData(saveData);
+      setShowConflictDialog(true);
+    } else {
+      const newSession: SavedSessionData = {
+        id: Date.now().toString(),
+        name: finalName,
+        timestamp: saveData.timestamp,
+        source: saveData.source,
+        sourceOther: saveData.sourceOther,
+        layout: saveData.layout,
+        keymap: saveData.keymap,
+        editingKeymap: null
+      };
+
+      const updatedSessions = [newSession, ...sessions];
+      setSessions(updatedSessions);
+      localStorage.setItem('keymap-editor:saved-sessions', JSON.stringify(updatedSessions));
+      setSessionName('');
+    }
+  }, [currentSession, sessions, sessionName, formatDate]);
+
+  const handleOverwrite = useCallback(() => {
+    if (!conflictSession || !pendingSaveData) return;
+
+    const updatedSessions = sessions.map(session => {
+      if (session.id === conflictSession.id) {
+        return {
+          ...session,
+          timestamp: pendingSaveData.timestamp,
+          source: pendingSaveData.source,
+          sourceOther: pendingSaveData.sourceOther,
+          layout: pendingSaveData.layout,
+          keymap: pendingSaveData.keymap,
+          editingKeymap: null
+        };
+      }
+      return session;
+    });
+
+    setSessions(updatedSessions);
+    localStorage.setItem('keymap-editor:saved-sessions', JSON.stringify(updatedSessions));
+    
+    setShowConflictDialog(false);
+    setConflictSession(null);
+    setPendingSaveData(null);
+    setSessionName('');
+  }, [sessions, conflictSession, pendingSaveData]);
+
+  const handleRenameAndSave = useCallback(() => {
+    const finalName = conflictNewName.trim();
+    if (!finalName || !pendingSaveData) return;
+
+    const anotherConflict = sessions.find(s => s.name === finalName);
+    if (anotherConflict) {
+      alert(`「${finalName}」は既に存在します。別の名前を入力してください。`);
+      return;
+    }
+
+    const newSession: SavedSessionData = {
+      id: Date.now().toString(),
+      name: finalName,
+      timestamp: pendingSaveData.timestamp,
+      source: pendingSaveData.source,
+      sourceOther: pendingSaveData.sourceOther,
+      layout: pendingSaveData.layout,
+      keymap: pendingSaveData.keymap,
       editingKeymap: null
     };
 
     const updatedSessions = [newSession, ...sessions];
     setSessions(updatedSessions);
     localStorage.setItem('keymap-editor:saved-sessions', JSON.stringify(updatedSessions));
+
+    setShowConflictDialog(false);
+    setConflictSession(null);
+    setPendingSaveData(null);
     setSessionName('');
-  }, [currentSession, sessions, sessionName, formatDate]);
+  }, [sessions, conflictNewName, pendingSaveData]);
 
   const handleDeleteSession = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -255,8 +348,9 @@ export default function FileAndSessionModal({
   if (!isOpen) return null;
 
   return (
-    <Modal>
-      <DialogBox onDismiss={onClose} dismissText="" className="file-session-dialog">
+    <>
+      <Modal>
+        <DialogBox onDismiss={onClose} dismissText="" className="file-session-dialog">
         <div className="unified-modal-content">
           {/* Left Column: File selection */}
           <div className="unified-modal-column">
@@ -431,5 +525,67 @@ export default function FileAndSessionModal({
         </div>
       </DialogBox>
     </Modal>
+    {showConflictDialog && (
+      <Modal>
+        <div className="dialog-box conflict-dialog" style={{ maxWidth: '450px' }}>
+          <h3 className="unified-modal-column-title" style={{ color: '#ef4444' }}>
+            <i className="fas fa-exclamation-triangle" style={{ color: '#ef4444', background: 'none', WebkitTextFillColor: 'initial' }}></i>
+            セーブデータの重複 / Save Name Conflict
+          </h3>
+          <p style={{ fontSize: '0.9rem', color: '#475569', margin: '12px 0 20px 0', lineHeight: '1.6' }}>
+            セーブデータ <strong>「{conflictSession?.name}」</strong> は既に存在します。上書きしますか？それとも別の名前で保存しますか？
+          </p>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '8px' }}>
+              別の名前で保存する場合の名前:
+            </label>
+            <input
+              type="text"
+              value={conflictNewName}
+              onChange={(e) => setConflictNewName(e.target.value)}
+              className="saved-sessions-input"
+              style={{ width: '100%', boxSizing: 'border-box' }}
+              placeholder="新しい名前を入力..."
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
+            <button
+              type="button"
+              onClick={handleOverwrite}
+              className="btn-modal-load"
+              style={{ width: '100%', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)' }}
+            >
+              <i className="fas fa-redo-alt"></i> 上書き保存する / Overwrite
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRenameAndSave}
+              disabled={!conflictNewName.trim() || conflictNewName.trim() === conflictSession?.name}
+              className="btn-save-session"
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              <i className="fas fa-edit"></i> 別の名前で保存する / Save As New Name
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowConflictDialog(false);
+                setConflictSession(null);
+                setPendingSaveData(null);
+              }}
+              className="btn-modal-cancel"
+              style={{ width: '100%', marginTop: '4px' }}
+            >
+              キャンセル / Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+    )}
+  </>
   );
 }
