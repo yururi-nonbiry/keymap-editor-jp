@@ -118,6 +118,18 @@ export function decodeParameter(behaviorName: string, paramIndex: number, paramV
       return decodeKeycodeParameter(paramValue);
     }
   }
+  if (behaviorName === '&mkp') {
+    const map = ['LCLK', 'RCLK', 'MCLK', 'MB4', 'MB5'];
+    return map[paramValue] || paramValue.toString();
+  }
+  if (behaviorName === '&mmv') {
+    const map = ['MOVE_UP', 'MOVE_DOWN', 'MOVE_LEFT', 'MOVE_RIGHT'];
+    return map[paramValue] || paramValue.toString();
+  }
+  if (behaviorName === '&msc') {
+    const map = ['SCRL_UP', 'SCRL_DOWN', 'SCRL_LEFT', 'SCRL_RIGHT'];
+    return map[paramValue] || paramValue.toString();
+  }
   return paramValue.toString();
 }
 
@@ -153,6 +165,34 @@ export function encodeParameter(behaviorName: string, paramIndex: number, paramS
     } else {
       return encodeKeycodeParameter(paramStr);
     }
+  }
+  if (behaviorName === '&mkp') {
+    const map: Record<string, number> = {
+      LCLK: 0,
+      RCLK: 1,
+      MCLK: 2,
+      MB4: 3,
+      MB5: 4
+    };
+    return map[paramStr.toUpperCase()] !== undefined ? map[paramStr.toUpperCase()] : parseInt(paramStr, 10) || 0;
+  }
+  if (behaviorName === '&mmv') {
+    const map: Record<string, number> = {
+      MOVE_UP: 0,
+      MOVE_DOWN: 1,
+      MOVE_LEFT: 2,
+      MOVE_RIGHT: 3
+    };
+    return map[paramStr.toUpperCase()] !== undefined ? map[paramStr.toUpperCase()] : parseInt(paramStr, 10) || 0;
+  }
+  if (behaviorName === '&msc') {
+    const map: Record<string, number> = {
+      SCRL_UP: 0,
+      SCRL_DOWN: 1,
+      SCRL_LEFT: 2,
+      SCRL_RIGHT: 3
+    };
+    return map[paramStr.toUpperCase()] !== undefined ? map[paramStr.toUpperCase()] : parseInt(paramStr, 10) || 0;
   }
   return parseInt(paramStr, 10) || 0;
 }

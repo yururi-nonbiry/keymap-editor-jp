@@ -11,7 +11,7 @@ interface KeyPaletteProps {
   layoutType: string;
 }
 
-type PaletteTab = 'keys' | 'layers' | 'behaviors' | 'bluetooth' | 'others';
+type PaletteTab = 'keys' | 'layers' | 'behaviors' | 'mouse' | 'bluetooth' | 'others';
 
 function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
   const parentSearchContext = useContext(SearchContext);
@@ -173,6 +173,38 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
       return { layout: l, bindings: b };
     }
 
+    if (tab === 'mouse') {
+      const mouseItems = [
+        '&mkp LCLK',
+        '&mkp RCLK',
+        '&mkp MCLK',
+        '&mkp MB4',
+        '&mkp MB5',
+        '&mmv MOVE_UP',
+        '&mmv MOVE_DOWN',
+        '&mmv MOVE_LEFT',
+        '&mmv MOVE_RIGHT',
+        '&msc SCRL_UP',
+        '&msc SCRL_DOWN',
+        '&msc SCRL_LEFT',
+        '&msc SCRL_RIGHT'
+      ];
+      const l: PaletteLayoutItem[] = [];
+      const b: KeyBinding[] = [];
+
+      mouseItems.forEach((item, i) => {
+        l.push({
+          x: (i % 6) * 1.5,
+          y: Math.floor(i / 6),
+          w: 1.5,
+          label: item,
+          code: ''
+        });
+        b.push(parseKeyBinding(item));
+      });
+      return { layout: l, bindings: b };
+    }
+
     if (tab === 'others') {
       const l: PaletteLayoutItem[] = [];
       const b: KeyBinding[] = [];
@@ -254,6 +286,13 @@ function KeyPalette({ layoutType: initialLayoutType }: KeyPaletteProps) {
           >
             <Icon name="sliders" />
             {isJp ? 'ビヘイビア' : 'Behaviors'}
+          </button>
+          <button 
+            onClick={() => setTab('mouse')} 
+            className={`${styles['segmented-control-button']} ${tab === 'mouse' ? styles.active : ''}`}
+          >
+            <Icon name="mouse" />
+            {isJp ? 'マウス' : 'Mouse'}
           </button>
           <button 
             onClick={() => setTab('bluetooth')} 

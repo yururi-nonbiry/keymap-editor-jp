@@ -204,5 +204,81 @@
     "name": "Increment/Decrement Key Press",
     "params": ["code", "code"],
     "includes": ["#include <dt-bindings/zmk/keys.h>"]
+  },
+  {
+    "code": "&mkp",
+    "name": "Mouse Press",
+    "params": ["command"],
+    "includes": ["#include <dt-bindings/zmk/pointing.h>"],
+    "commands": [
+      {
+        "code": "LCLK",
+        "description": "Left Click"
+      },
+      {
+        "code": "RCLK",
+        "description": "Right Click"
+      },
+      {
+        "code": "MCLK",
+        "description": "Middle Click"
+      },
+      {
+        "code": "MB4",
+        "description": "Mouse Button 4 (Back)"
+      },
+      {
+        "code": "MB5",
+        "description": "Mouse Button 5 (Forward)"
+      }
+    ]
+  },
+  {
+    "code": "&mmv",
+    "name": "Mouse Move",
+    "params": ["command"],
+    "includes": ["#include <dt-bindings/zmk/pointing.h>"],
+    "commands": [
+      {
+        "code": "MOVE_UP",
+        "description": "Move Up"
+      },
+      {
+        "code": "MOVE_DOWN",
+        "description": "Move Down"
+      },
+      {
+        "code": "MOVE_LEFT",
+        "description": "Move Left"
+      },
+      {
+        "code": "MOVE_RIGHT",
+        "description": "Move Right"
+      }
+    ]
+  },
+  {
+    "code": "&msc",
+    "name": "Mouse Scroll",
+    "params": ["command"],
+    "includes": ["#include <dt-bindings/zmk/pointing.h>"],
+    "commands": [
+      {
+        "code": "SCRL_UP",
+        "description": "Scroll Up"
+      },
+      {
+        "code": "SCRL_DOWN",
+        "description": "Scroll Down"
+      },
+      {
+        "code": "SCRL_LEFT",
+        "description": "Scroll Left"
+      },
+      {
+        "code": "SCRL_RIGHT",
+        "description": "Scroll Right"
+      }
+    ]
   }
 ]
