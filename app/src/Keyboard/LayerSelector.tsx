@@ -25,11 +25,12 @@ interface LayerSelectorProps {
   onNewLayer: () => void;
   onRenameLayer: (name: string) => void;
   onDeleteLayer: (index: number) => void;
+  isJp?: boolean;
 }
 
 function LayerSelector(props: LayerSelectorProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const { activeLayer, layers } = props;
+  const { activeLayer, layers, isJp } = props;
   const { onSelect, onNewLayer, onRenameLayer, onDeleteLayer } = props;
   const [renaming, setRenaming] = useState(false);
   const [editing, setEditing] = useState('');
@@ -95,19 +96,13 @@ function LayerSelector(props: LayerSelectorProps) {
   }, []);
 
   return (
-    <div
-      className={styles['layer-selector']}
-      // @ts-ignore
-      data-renaming={renaming}
-      ref={ref}
-    >
-      <p>Layers:</p>
-      <ul>
+    <div className={styles['layer-sidebar']} ref={ref}>
+      <h3 className={styles['layer-sidebar-title']}>{isJp ? 'レイヤー' : 'Layers'}</h3>
+      <ul className={styles['layer-sidebar-list']}>
         {layers.map((name, i) => (
           <li
             key={`layer-${i}`}
-            className={activeLayer === i ? styles.active : ''}
-            data-layer={i}
+            className={`${styles['layer-sidebar-item']} ${activeLayer === i ? styles.active : ''}`}
             onClick={stop(() => handleSelect(i))}
           >
             <span className={styles.index}>{i}</span>
@@ -134,9 +129,9 @@ function LayerSelector(props: LayerSelectorProps) {
             )}
           </li>
         ))}
-        <li onClick={handleAdd}>
-          <Icon className={styles.index} name="plus" />
-          <span className={styles.name}>Add Layer</span>
+        <li className={styles['layer-sidebar-add']} onClick={handleAdd}>
+          <Icon name="plus" />
+          <span>{isJp ? '新規レイヤー追加' : 'Add Layer'}</span>
         </li>
       </ul>
     </div>

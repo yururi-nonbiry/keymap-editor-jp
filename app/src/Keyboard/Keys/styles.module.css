@@ -4,19 +4,34 @@
 	justify-content: center;
 	align-items: center;
 
-	color: #999;
-	background-color: whitesmoke;
+	color: #334155;
+	background-color: #ffffff;
 	font-size: 110%;
-	border-radius: 5px;
+	border: 1px solid #cbd5e1;
+	border-bottom: 3px solid #94a3b8;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
 	cursor: pointer;
+	box-sizing: border-box;
+	transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	user-select: none;
 }
 .key:hover {
-	background-color: var(--hover-selection);
-	transition: 200ms;
-	z-index: 1;
+	background-color: #f8fafc;
+	border-color: #94a3b8;
+	border-bottom: 3px solid #64748b;
+	transform: translateY(-2px);
+	box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
+	z-index: 10;
+	transition: all 0.15s ease;
+}
+.key:active {
+	transform: translateY(1px);
+	border-bottom: 1px solid #cbd5e1;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 .key:hover .code, .key:hover .behaviour-binding {
-	color: white;
+	color: #0f172a;
 }
 .key > .code {
 	padding: 5px;
@@ -114,10 +129,16 @@
 /* Styling for top (hold) parameter of mod-tap / layer-tap */
 .key[data-behaviour="&mt"] .params[data-is-root="true"] > .param:first-child,
 .key[data-behaviour="&lt"] .params[data-is-root="true"] > .param:first-child {
-  font-size: 70%;
-  opacity: 0.65;
-  font-weight: normal;
-  display: flex;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #64748b;
+  background-color: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -125,9 +146,9 @@
 /* Styling for bottom (tap) parameter of mod-tap / layer-tap */
 .key[data-behaviour="&mt"] .params[data-is-root="true"] > .param:last-child,
 .key[data-behaviour="&lt"] .params[data-is-root="true"] > .param:last-child {
-  font-size: 110%;
-  font-weight: bold;
-  color: #333;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,7 +156,7 @@
 
 /* Text color behavior on key hover */
 .key:hover .params[data-is-root="true"] > .param:last-child {
-  color: white;
+  color: #0f172a;
 }
 
 /* Modifier function parameter styling (hide parentheses for LS, LC, etc.) */
@@ -178,11 +199,11 @@
 }
 
 .key:hover .normal {
-  color: white;
+  color: #334155;
 }
 
 .key:hover .shifted {
-  color: #eee;
+  color: #94a3b8;
 }
 
 .shiftModifierParam {
@@ -198,7 +219,7 @@
 }
 
 .key:hover .shiftedSymbol {
-  color: white;
+  color: #0f172a;
 }
 
 .shiftedParentheses {

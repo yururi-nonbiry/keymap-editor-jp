@@ -216,26 +216,46 @@ function Keyboard(props: KeyboardProps) {
 
   return (
     <>
-      <LayerSelector
-        layers={keymap.layer_names || []}
-        activeLayer={activeLayer}
-        onSelect={setActiveLayer}
-        onNewLayer={handleCreateLayer}
-        onRenameLayer={handleRenameLayer}
-        onDeleteLayer={handleDeleteLayer}
-      />
-      <SearchContext.Provider value={{ getSearchTargets, sources, layoutType: keyboardLayoutType }}>
-        <div className="screen-only" style={wrapperStyle}>
-          {isReady && (
-            <KeyboardLayout
-              data-layer={activeLayer}
-              layout={normalLayout}
-              bindings={keymap.layers[activeLayer] || []}
-              onUpdate={(updatedLayer: KeyBinding[]) => handleUpdateLayer(activeLayer, updatedLayer)}
-            />
-          )}
+      <div style={{ display: 'flex', gap: '30px', maxWidth: '1400px', margin: '40px auto', padding: '0 20px', alignItems: 'flex-start' }} className="screen-only">
+        <LayerSelector
+          isJp={keyboardLayoutType === 'JP'}
+          layers={keymap.layer_names || []}
+          activeLayer={activeLayer}
+          onSelect={setActiveLayer}
+          onNewLayer={handleCreateLayer}
+          onRenameLayer={handleRenameLayer}
+          onDeleteLayer={handleDeleteLayer}
+        />
+        <div style={{
+          flex: 1,
+          minWidth: 0,
+          backgroundColor: '#1e293b',
+          borderRadius: '16px',
+          border: '1px solid #334155',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+          padding: '40px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflowX: 'auto',
+          minHeight: '400px'
+        }}>
+          <SearchContext.Provider value={{ getSearchTargets, sources, layoutType: keyboardLayoutType }}>
+            <div style={wrapperStyle}>
+              {isReady && (
+                <KeyboardLayout
+                  data-layer={activeLayer}
+                  layout={normalLayout}
+                  bindings={keymap.layers[activeLayer] || []}
+                  onUpdate={(updatedLayer: KeyBinding[]) => handleUpdateLayer(activeLayer, updatedLayer)}
+                />
+              )}
+            </div>
+          </SearchContext.Provider>
         </div>
+      </div>
 
+      <SearchContext.Provider value={{ getSearchTargets, sources, layoutType: keyboardLayoutType }}>
         {encoderLayout.length > 0 && (
           <div className="encoder-panel screen-only" style={{
             maxWidth: '1200px',

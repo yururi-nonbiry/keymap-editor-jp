@@ -1,86 +1,143 @@
-.layer-selector {
-  position: absolute;
-  z-index: 2;
+/* Sidebar Layer Selector */
+.layer-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: fit-content;
 }
 
-.layer-selector ul {
-  display: inline-block;
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-.layer-selector li {
-	cursor: pointer;
-	background-color: rgba(201, 201, 201, 0.85);
-	color: darkgray;
-	border-radius: 15px;
-  height: 30px;
-	padding: 0px;
-	margin: 4px 2px;
-
-}
-.layer-selector li:hover {
-  background-color: rgba(60, 179, 113, 0.85);
-  color: white;
-}
-.layer-selector li.active {
-	background-color: rgb(60, 179, 113);
-	color: white;
+.layer-sidebar-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #475569;
+  letter-spacing: 0.075em;
+  border-left: 4px solid var(--selection, rgb(60, 179, 113));
+  padding-left: 10px;
+  line-height: 1;
 }
 
-.layer-selector li * {
-  display: inline-block;
+.layer-sidebar-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.layer-selector li .index {
-  overflow: auto;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  text-align: center;
+
+.layer-sidebar-item {
+  cursor: pointer;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
-.layer-selector li .name {
+
+.layer-sidebar-item:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.layer-sidebar-item.active {
+  background-color: var(--selection, rgb(60, 179, 113));
+  border-color: var(--selection, rgb(60, 179, 113));
+  color: #ffffff;
+  box-shadow: 0 4px 12px -4px rgba(60, 179, 113, 0.4);
+}
+
+.layer-sidebar-item .index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.06);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.layer-sidebar-item.active .index {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.layer-sidebar-item .name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
   overflow: hidden;
-  width: 0;
-  height: 30px;
-  line-height: 30px;
-  padding: 0;
-  font-variant: small-caps;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.layer-selector:hover li .name,
-.layer-selector[data-renaming="true"] li .name {
-  transition: .15s ease-in;
-  width: 120px;
-  padding: 0 0 0 10px;
-}
-
-.layer-selector button {
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  padding: 0;
-  text-align: center;
-  border-radius: 15px;
-}
-
-.layer-selector input.name {
-  vertical-align: top;
-  width: 100px;
+.layer-sidebar-item input.name {
+  width: 100%;
   border: none;
   outline: none;
   background: transparent;
-  color: white;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 0;
 }
 
-.layer-selector .delete {
-  float: right;
-  height: 30px;
-  line-height: 30px;
-  width: 30px;
+.layer-sidebar-item .delete {
+  font-size: 0.95rem;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  margin-left: 8px;
 }
 
-.layer-selector li.active .name {
-  cursor: text;
+.layer-sidebar-item .delete:hover {
+  opacity: 1;
+  color: #ef4444 !important;
+}
+
+.layer-sidebar-add {
+  cursor: pointer;
+  border: 1px dashed #cbd5e1;
+  background-color: transparent;
+  color: #64748b;
+  border-radius: 10px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.layer-sidebar-add:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
 }
 
 /* Key Palette Container */
