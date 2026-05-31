@@ -253,7 +253,8 @@ function App() {
       : 0;
     const encoderCount = Math.max(layout.filter(isEncoder).length, maxSensorsInBindings);
     
-    const layerNames = keymap.layer_names || keymap.layers.map((_, i) => `Layer ${i}`);
+    const defaultNames = ['JIS', 'US', 'Fn', 'Bluetooth'];
+    const layerNames = keymap.layer_names || keymap.layers.map((_, i) => defaultNames[i] || `Layer ${i}`);
     
     let sensor_bindings = keymap.sensor_bindings || [];
     if (encoderCount > 0) {
@@ -334,17 +335,30 @@ function App() {
     setFuture([]);
   }, [setSource, setSourceOther, setLayout, setKeymap, setEditingKeymap, setLayoutFileName, setKeymapFileName, setPast, setFuture, normalizeKeymap]);
 
+  const getDisplayCode = useCallback((code: string) => {
+    if (!code) return code;
+    let clean = code.startsWith('&') ? code.slice(1) : code;
+    clean = clean.toUpperCase();
+    if (clean === 'SL') return 'OSL';
+    if (clean === 'TOG') return 'TG';
+    return clean;
+  }, []);
+
   const initialize = useCallback(async () => {
     const [keycodes, behaviours] = await Promise.all([
       loadKeycodes(),
       loadBehaviours()
     ]);
 
+    behaviours.forEach((b: any) => {
+      b.displayName = getDisplayCode(b.code);
+    });
+
     (keycodes as any).indexed = keyBy(keycodes, 'code');
     (behaviours as any).indexed = keyBy(behaviours, 'code');
 
     setDefinitions({ keycodes, behaviours });
-  }, [setDefinitions]);
+  }, [setDefinitions, getDisplayCode]);
 
   const handleUpdateKeymap = useCallback((updatedKeymap: Keymap) => {
     const currentState = editingKeymap || keymap;

@@ -239,7 +239,7 @@ function Key(props: KeyProps) {
         className={styles['behaviour-binding']}
         onClick={handleSelectBehaviour}
       >
-        {behaviour.code}
+        {behaviour.displayName || behaviour.code}
       </span>
     ) : null}
     <KeyParamlist

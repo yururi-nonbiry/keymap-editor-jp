@@ -62,7 +62,7 @@ function ValuePicker (props: ValuePickerProps) {
     }));
   }, [choices]);
 
-  const actualSearchKey = (isJp && searchKey === 'code') ? 'displayName' : searchKey;
+  const actualSearchKey = searchKey === 'code' ? 'displayName' : searchKey;
 
   const searchKeys = useMemo(() => {
     return ['displayName', 'code', 'symbol', 'description'];

@@ -50,10 +50,16 @@ function Keyboard(props: KeyboardProps) {
   }, [layout, isEncoder, keymap.sensor_bindings, activeLayer]);
 
   const availableLayers = useMemo(() => isEmpty(keymap) ? [] : (
-    (keymap.layers || []).map((_, i) => ({
-      code: i.toString(),
-      description: (keymap.layer_names || [])[i] || `Layer ${i}`
-    }))
+    (keymap.layers || []).map((_, i) => {
+      const defaultNames = ['JIS', 'US', 'Fn', 'Bluetooth'];
+      const name = (keymap.layer_names || [])[i] || defaultNames[i] || `Layer ${i}`;
+      return {
+        code: i.toString(),
+        description: name,
+        symbol: name,
+        displayName: name
+      };
+    })
   ), [keymap]);
 
   const sources = useMemo(() => ({
@@ -133,7 +139,9 @@ function Keyboard(props: KeyboardProps) {
     });
 
     const newLayer = times(keyCount, makeKeycode);
-    const updatedLayerNames = [ ...(keymap.layer_names || []), `Layer #${layer}` ];
+    const defaultNames = ['JIS', 'US', 'Fn', 'Bluetooth'];
+    const newName = defaultNames[layer] || `Layer #${layer}`;
+    const updatedLayerNames = [ ...(keymap.layer_names || []), newName ];
     const layers = [ ...keymap.layers, newLayer ];
 
     const newSensorLayer = times(encoderCount, makeKeycode);

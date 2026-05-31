@@ -15,8 +15,8 @@ const EMPTY_KEYMAP: Keymap = {
   keyboard: 'unknown',
   keymap: 'unknown',
   layout: 'unknown',
-  layer_names: ['default'],
-  layers: [[]]
+  layer_names: ['JIS', 'US', 'Fn', 'Bluetooth'],
+  layers: [[], [], [], []]
 };
 
 export function loadBehaviors(): any[] {
